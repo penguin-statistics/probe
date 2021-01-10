@@ -7,7 +7,9 @@ import (
 )
 
 var (
+	// ErrInvalidWsMessage is the error of an invalid websocket message
 	ErrInvalidWsMessage = mustPrepareMessage("invalid websocket message")
+	// ErrInternalError describes a server-side error
 	ErrInternalError    = mustPrepareMessage("internal server error")
 )
 

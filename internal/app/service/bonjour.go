@@ -5,14 +5,17 @@ import (
 	"github.com/penguin-statistics/probe/internal/app/repository"
 )
 
+// Bonjour is the bonjour service
 type Bonjour struct {
 	repo *repository.Probe
 }
 
+// NewBonjour creates a bonjour request-related service with repo
 func NewBonjour(repo *repository.Probe) *Bonjour {
 	return &Bonjour{repo: repo}
 }
 
+// Record adds a bonjour request in model.Bonjour to db
 func (s *Bonjour) Record(b *model.Bonjour) error {
 	if err := s.repo.DB.Create(b).Error; err != nil {
 		return err

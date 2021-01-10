@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Bonjour is a bonjour request in which the client initiates request with basic params
 type Bonjour struct {
 	ID        uint `gorm:"primarykey"`
 	CreatedAt time.Time

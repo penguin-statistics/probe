@@ -9,13 +9,16 @@ import (
 )
 
 const (
+	// MaxSemVerString describes the maximum possible semver to be represented by densemver
 	MaxSemVerString = "65535.255.255"
 )
 
+// DenSemVer is for dense (encoded) semantic versioning
 type DenSemVer struct {
 	semver *semver.Version
 }
 
+// Scan implements sql.Scanner
 func (v *DenSemVer) Scan(src interface{}) error {
 	switch src.(type) {
 	case uint32:
@@ -30,6 +33,7 @@ func (v *DenSemVer) Scan(src interface{}) error {
 	}
 }
 
+// Value implements driver.Valuer
 func (v DenSemVer) Value() (driver.Value, error) {
 	if v.semver == nil {
 		return nil, errors.New("invalid DenSemVer passed")
@@ -37,6 +41,7 @@ func (v DenSemVer) Value() (driver.Value, error) {
 	return v.Int(), nil
 }
 
+// UnmarshalParam implements echo.BindUnmarshaler
 func (v *DenSemVer) UnmarshalParam(param string) error {
 	dsv, err := FromString(param)
 	if err != nil {
@@ -46,7 +51,7 @@ func (v *DenSemVer) UnmarshalParam(param string) error {
 	return nil
 }
 
-// initialize a DenSemVer instance from a semver string
+// FromString initializes a DenSemVer instance from a semver string
 func FromString(v string) (dsv *DenSemVer, err error) {
 	semv, err := semver.NewVersion(v)
 	if err != nil {
@@ -63,10 +68,10 @@ func FromString(v string) (dsv *DenSemVer, err error) {
 	return &DenSemVer{semver: semv}, nil
 }
 
-// initialize a DenSemVer instance from a DenSemVer integer representation
+// FromInt initializes a DenSemVer instance from a DenSemVer integer representation
 func FromInt(i uint32) (dsv *DenSemVer, err error) {
 	if i > (1<<32)-1 || i < 0 {
-		return nil, errors.New(fmt.Sprintf("semver version out of range: %v", i))
+		return nil, fmt.Errorf("semver version out of range: %v", i)
 	}
 	major := i >> 16
 	minor := (i >> 8) & 0xFF

@@ -24,11 +24,13 @@ var (
 	log = logger.New("controller")
 )
 
+// Bonjour is a bonjour service controller
 type Bonjour struct {
 	service *service.Bonjour
 	hub     *wspool.Hub
 }
 
+// NewBonjour creates a Bonjour controller with service
 func NewBonjour(service *service.Bonjour) *Bonjour {
 	hub := wspool.NewHub()
 	go hub.Run()
@@ -38,6 +40,7 @@ func NewBonjour(service *service.Bonjour) *Bonjour {
 	}
 }
 
+// LiveHandler handles probe reports
 func (ct *Bonjour) LiveHandler(c echo.Context) error {
 	r := new(model.Bonjour)
 	if err := c.Bind(r); err != nil {

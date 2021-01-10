@@ -2,12 +2,14 @@
 
 package wspool
 
+// Hub consists of current active clients
 type Hub struct {
 	Clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client
 }
 
+// NewHub creates a new Hub
 func NewHub() *Hub {
 	return &Hub{
 		Clients:    make(map[*Client]bool),
@@ -16,6 +18,7 @@ func NewHub() *Hub {
 	}
 }
 
+// Run listens for channel update and reflects them on the internal Clients property
 func (h *Hub) Run() {
 	for {
 		select {

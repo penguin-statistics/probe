@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Bootstrap starts the http server up
 func Bootstrap() error {
 	e := echo.New()
 	e.Debug = true

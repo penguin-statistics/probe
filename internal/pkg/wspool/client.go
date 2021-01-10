@@ -22,6 +22,7 @@ const (
 	maxMessageSize = 512
 )
 
+// Client is a websocket client with op methods
 type Client struct {
 	Hub  *Hub
 	Conn *websocket.Conn
@@ -29,6 +30,7 @@ type Client struct {
 	Done chan struct{}
 }
 
+// Read block-reads from the underlying websocket.Conn. It also parses skeleton for further unmarshalling
 func (c *Client) Read() {
 	defer func() {
 		c.Hub.Unregister <- c
