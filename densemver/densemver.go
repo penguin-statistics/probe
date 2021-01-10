@@ -65,7 +65,7 @@ func FromString(v string) (dsv *DenSemVer, err error) {
 
 // initialize a DenSemVer instance from a DenSemVer integer representation
 func FromInt(i uint32) (dsv *DenSemVer, err error) {
-	if i > (1 << 32) - 1 || i < 0 {
+	if i > (1<<32)-1 || i < 0 {
 		return nil, errors.New(fmt.Sprintf("semver version out of range: %v", i))
 	}
 	major := i >> 16

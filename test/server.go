@@ -43,7 +43,7 @@ func handleWsConn(ws *websocket.Conn, wg *sync.WaitGroup, ctr *uint64) {
 		}
 		atomic.AddUint64(ctr, 1)
 		c := atomic.LoadUint64(ctr)
-		if c % 5000 == 0 {
+		if c%5000 == 0 {
 			log.Printf("requests total: %v times", c)
 		}
 		time.Sleep(time.Millisecond * 10)

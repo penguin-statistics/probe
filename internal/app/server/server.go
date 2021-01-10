@@ -14,7 +14,7 @@ func Bootstrap() error {
 	e.Debug = true
 	e.Validator = &Validator{}
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format:           "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
+		Format: "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
 	}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,

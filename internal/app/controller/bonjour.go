@@ -26,7 +26,7 @@ var (
 
 type Bonjour struct {
 	service *service.Bonjour
-	hub *wspool.Hub
+	hub     *wspool.Hub
 }
 
 func NewBonjour(service *service.Bonjour) *Bonjour {
@@ -34,7 +34,7 @@ func NewBonjour(service *service.Bonjour) *Bonjour {
 	go hub.Run()
 	return &Bonjour{
 		service: service,
-		hub: hub,
+		hub:     hub,
 	}
 }
 
@@ -71,4 +71,3 @@ func (ct *Bonjour) LiveHandler(c echo.Context) error {
 	<-done
 	return nil
 }
-

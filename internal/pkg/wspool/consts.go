@@ -8,7 +8,7 @@ import (
 
 var (
 	ErrInvalidWsMessage = mustPrepareMessage("invalid websocket message")
-	ErrInternalError = mustPrepareMessage("internal server error")
+	ErrInternalError    = mustPrepareMessage("internal server error")
 )
 
 func mustPrepareMessage(m string) (msg *websocket.PreparedMessage) {
@@ -23,4 +23,3 @@ func mustPrepareMessage(m string) (msg *websocket.PreparedMessage) {
 	}
 	return msg
 }
-
