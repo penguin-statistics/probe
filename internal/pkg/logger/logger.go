@@ -3,6 +3,7 @@ package logger
 import (
 	"github.com/sirupsen/logrus"
 )
+
 // New creates a new logrus logger
 func New(module string) *logrus.Entry {
 	l := logrus.New()
