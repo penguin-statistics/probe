@@ -1,0 +1,74 @@
+syntax = "proto3";
+package PenguinProbe;
+
+option go_package = ".;messages";
+
+enum Language {
+  ZH_CN = 0;
+  EN_US = 1;
+  JA_JP = 2;
+  KO_KR = 3;
+  OTHER = 4;
+}
+
+enum Server {
+  CN = 0;
+  US = 1;
+  JP = 2;
+  KR = 3;
+}
+
+enum MessageType {
+  ENTERED_SEARCH_RESULT = 0;
+  NAVIGATED = 1;
+  EXECUTED_ADVANCED_QUERY = 2;
+
+  SERVER_ERRORED = 64;
+  SERVER_ACK = 65;
+}
+
+message Meta {
+  MessageType type = 1;
+  Language language = 2;
+}
+
+message Skeleton {
+  Meta meta = 1;
+}
+
+message EnteredSearchResult {
+  Meta meta = 1;
+  oneof id {
+    string stageId = 2;
+    string itemId = 3;
+  }
+  string query = 4;
+  uint32 position = 5;
+}
+
+message ExecutedAdvancedQuery {
+  message AdvancedQuery {
+    string stageId = 1;
+    repeated string itemIds = 2;
+    Server server = 3;
+    // we don't include range, source and interval in our probe report yet
+    reserved 4 to 6;
+  }
+
+  Meta meta = 1;
+  repeated AdvancedQuery queries = 2;
+}
+
+message Navigated {
+  Meta meta = 1;
+  string path = 2;
+}
+
+message ServerErrored {
+  MessageType type = 1;
+  string message = 2;
+}
+
+message ServerACK {
+  MessageType type = 1;
+}
