@@ -1,6 +1,7 @@
 package wspool
 
 import (
+	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/penguin-statistics/probe/internal/pkg/messages"
 	"google.golang.org/protobuf/proto"
@@ -22,12 +23,32 @@ const (
 	maxMessageSize = 512
 )
 
-// Client is a websocket client with op methods
+// ClientRequest is the skeleton-unmarshalled client side request
+type ClientRequest struct {
+	Skeleton *messages.Skeleton
+	Body     []byte
+}
+
+// Client is a intermediate module to connect user-side websocket client with hub
 type Client struct {
-	Hub  *Hub
-	Conn *websocket.Conn
-	Send chan []byte
-	Done chan struct{}
+	Hub      *Hub
+	Conn     *websocket.Conn
+	Received chan ClientRequest
+	Send     chan *websocket.PreparedMessage
+	Done     chan struct{}
+
+	InvalidCount int
+}
+
+func NewClient(hub *Hub, conn *websocket.Conn) *Client {
+	return &Client{
+		Hub:          hub,
+		Conn:         conn,
+		Received:     make(chan ClientRequest, 64),
+		Send:         make(chan *websocket.PreparedMessage, 256),
+		Done:         make(chan struct{}),
+		InvalidCount: 0,
+	}
 }
 
 // Read block-reads from the underlying websocket.Conn. It also parses skeleton for further unmarshalling
@@ -46,31 +67,15 @@ func (c *Client) Read() {
 		return nil
 	})
 
-	orErr := func(err error) error {
-		if err != nil {
-			log.Error("malformed client message", err)
-			return c.Conn.WritePreparedMessage(ErrInvalidWsMessage)
-		}
-		return nil
-	}
-
 	for {
 		s, p, err := c.readSkeleton()
 		if err != nil {
 			break
 		}
 		typ := s.Meta.Type
-		switch typ {
-		case messages.MessageType_NAVIGATED:
-			var body messages.Navigated
-			err := orErr(proto.Unmarshal(p, &body))
-			if err != nil {
-				log.Warnln()
-			}
-		default:
-			log.Warnln("unknown message type", s.Meta.Type)
-			c.Conn.WritePreparedMessage(ErrInvalidWsMessage)
-			break
+		c.Received <- ClientRequest{
+			Skeleton: s,
+			Body:     p,
 		}
 
 		c.ack(typ)
@@ -81,10 +86,15 @@ func (c *Client) ack(messageType messages.MessageType) error {
 	m := messages.ServerACK{Type: messageType}
 	b, err := proto.Marshal(&m)
 	if err != nil {
-		log.Errorln("error occurred when sending ack", err)
+		log.Debugln("error occurred when marshalling ack message", err)
 		return err
 	}
-	c.Send <- b
+	p, err := websocket.NewPreparedMessage(websocket.BinaryMessage, b)
+	if err != nil {
+		log.Debugln("error occurred when preparing ack message", err)
+		return err
+	}
+	c.Send <- p
 	return nil
 }
 
@@ -96,7 +106,7 @@ func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 	}
 	if typ != websocket.BinaryMessage && typ != websocket.PongMessage {
 		log.Debugln("unexpected message type that is not a BinaryMessage type", typ)
-		return &messages.Skeleton{}, nil, err
+		return &messages.Skeleton{}, nil, errors.New("unexpected message type")
 	}
 
 	var skeleton messages.Skeleton
@@ -128,7 +138,7 @@ func (c *Client) Write() {
 				return
 			}
 
-			err := c.Conn.WriteMessage(websocket.BinaryMessage, message)
+			err := c.Conn.WritePreparedMessage(message)
 			if err != nil {
 				log.Warnln("failed to Send message", err)
 				break

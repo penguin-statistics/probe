@@ -503,7 +503,7 @@ func (x *Navigated) GetPath() string {
 	return ""
 }
 
-type ServerErrored struct {
+type ServerACK struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -512,64 +512,10 @@ type ServerErrored struct {
 	Message string      `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 }
 
-func (x *ServerErrored) Reset() {
-	*x = ServerErrored{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_shared_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ServerErrored) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ServerErrored) ProtoMessage() {}
-
-func (x *ServerErrored) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ServerErrored.ProtoReflect.Descriptor instead.
-func (*ServerErrored) Descriptor() ([]byte, []int) {
-	return file_shared_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ServerErrored) GetType() MessageType {
-	if x != nil {
-		return x.Type
-	}
-	return MessageType_ENTERED_SEARCH_RESULT
-}
-
-func (x *ServerErrored) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-type ServerACK struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Type MessageType `protobuf:"varint,1,opt,name=type,proto3,enum=PenguinProbe.MessageType" json:"type,omitempty"`
-}
-
 func (x *ServerACK) Reset() {
 	*x = ServerACK{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_shared_proto_msgTypes[6]
+		mi := &file_shared_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -582,7 +528,7 @@ func (x *ServerACK) String() string {
 func (*ServerACK) ProtoMessage() {}
 
 func (x *ServerACK) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_msgTypes[6]
+	mi := &file_shared_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -595,7 +541,7 @@ func (x *ServerACK) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerACK.ProtoReflect.Descriptor instead.
 func (*ServerACK) Descriptor() ([]byte, []int) {
-	return file_shared_proto_rawDescGZIP(), []int{6}
+	return file_shared_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ServerACK) GetType() MessageType {
@@ -603,6 +549,13 @@ func (x *ServerACK) GetType() MessageType {
 		return x.Type
 	}
 	return MessageType_ENTERED_SEARCH_RESULT
+}
+
+func (x *ServerACK) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
 }
 
 type ExecutedAdvancedQuery_AdvancedQuery struct {
@@ -618,7 +571,7 @@ type ExecutedAdvancedQuery_AdvancedQuery struct {
 func (x *ExecutedAdvancedQuery_AdvancedQuery) Reset() {
 	*x = ExecutedAdvancedQuery_AdvancedQuery{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_shared_proto_msgTypes[7]
+		mi := &file_shared_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -631,7 +584,7 @@ func (x *ExecutedAdvancedQuery_AdvancedQuery) String() string {
 func (*ExecutedAdvancedQuery_AdvancedQuery) ProtoMessage() {}
 
 func (x *ExecutedAdvancedQuery_AdvancedQuery) ProtoReflect() protoreflect.Message {
-	mi := &file_shared_proto_msgTypes[7]
+	mi := &file_shared_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,16 +667,12 @@ var file_shared_proto_rawDesc = []byte{
 	0x0a, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x50,
 	0x65, 0x6e, 0x67, 0x75, 0x69, 0x6e, 0x50, 0x72, 0x6f, 0x62, 0x65, 0x2e, 0x4d, 0x65, 0x74, 0x61,
 	0x52, 0x04, 0x6d, 0x65, 0x74, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22, 0x58, 0x0a, 0x0d, 0x53, 0x65,
-	0x72, 0x76, 0x65, 0x72, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x65, 0x64, 0x12, 0x2d, 0x0a, 0x04, 0x74,
-	0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x19, 0x2e, 0x50, 0x65, 0x6e, 0x67,
-	0x75, 0x69, 0x6e, 0x50, 0x72, 0x6f, 0x62, 0x65, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x22, 0x3a, 0x0a, 0x09, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x41, 0x43,
-	0x4b, 0x12, 0x2d, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32,
-	0x19, 0x2e, 0x50, 0x65, 0x6e, 0x67, 0x75, 0x69, 0x6e, 0x50, 0x72, 0x6f, 0x62, 0x65, 0x2e, 0x4d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22, 0x54, 0x0a, 0x09, 0x53, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x41, 0x43, 0x4b, 0x12, 0x2d, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x19, 0x2e, 0x50, 0x65, 0x6e, 0x67, 0x75, 0x69, 0x6e, 0x50,
+	0x72, 0x6f, 0x62, 0x65, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x54, 0x79, 0x70, 0x65,
+	0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
 	0x2a, 0x41, 0x0a, 0x08, 0x4c, 0x61, 0x6e, 0x67, 0x75, 0x61, 0x67, 0x65, 0x12, 0x09, 0x0a, 0x05,
 	0x5a, 0x48, 0x5f, 0x43, 0x4e, 0x10, 0x00, 0x12, 0x09, 0x0a, 0x05, 0x45, 0x4e, 0x5f, 0x55, 0x53,
 	0x10, 0x01, 0x12, 0x09, 0x0a, 0x05, 0x4a, 0x41, 0x5f, 0x4a, 0x50, 0x10, 0x02, 0x12, 0x09, 0x0a,
@@ -755,7 +704,7 @@ func file_shared_proto_rawDescGZIP() []byte {
 }
 
 var file_shared_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_shared_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_shared_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_shared_proto_goTypes = []interface{}{
 	(Language)(0),                 // 0: PenguinProbe.Language
 	(Server)(0),                   // 1: PenguinProbe.Server
@@ -765,26 +714,24 @@ var file_shared_proto_goTypes = []interface{}{
 	(*EnteredSearchResult)(nil),   // 5: PenguinProbe.EnteredSearchResult
 	(*ExecutedAdvancedQuery)(nil), // 6: PenguinProbe.ExecutedAdvancedQuery
 	(*Navigated)(nil),             // 7: PenguinProbe.Navigated
-	(*ServerErrored)(nil),         // 8: PenguinProbe.ServerErrored
-	(*ServerACK)(nil),             // 9: PenguinProbe.ServerACK
-	(*ExecutedAdvancedQuery_AdvancedQuery)(nil), // 10: PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+	(*ServerACK)(nil),             // 8: PenguinProbe.ServerACK
+	(*ExecutedAdvancedQuery_AdvancedQuery)(nil), // 9: PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
 }
 var file_shared_proto_depIdxs = []int32{
-	2,  // 0: PenguinProbe.Meta.type:type_name -> PenguinProbe.MessageType
-	0,  // 1: PenguinProbe.Meta.language:type_name -> PenguinProbe.Language
-	3,  // 2: PenguinProbe.Skeleton.meta:type_name -> PenguinProbe.Meta
-	3,  // 3: PenguinProbe.EnteredSearchResult.meta:type_name -> PenguinProbe.Meta
-	3,  // 4: PenguinProbe.ExecutedAdvancedQuery.meta:type_name -> PenguinProbe.Meta
-	10, // 5: PenguinProbe.ExecutedAdvancedQuery.queries:type_name -> PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
-	3,  // 6: PenguinProbe.Navigated.meta:type_name -> PenguinProbe.Meta
-	2,  // 7: PenguinProbe.ServerErrored.type:type_name -> PenguinProbe.MessageType
-	2,  // 8: PenguinProbe.ServerACK.type:type_name -> PenguinProbe.MessageType
-	1,  // 9: PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery.server:type_name -> PenguinProbe.Server
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	2, // 0: PenguinProbe.Meta.type:type_name -> PenguinProbe.MessageType
+	0, // 1: PenguinProbe.Meta.language:type_name -> PenguinProbe.Language
+	3, // 2: PenguinProbe.Skeleton.meta:type_name -> PenguinProbe.Meta
+	3, // 3: PenguinProbe.EnteredSearchResult.meta:type_name -> PenguinProbe.Meta
+	3, // 4: PenguinProbe.ExecutedAdvancedQuery.meta:type_name -> PenguinProbe.Meta
+	9, // 5: PenguinProbe.ExecutedAdvancedQuery.queries:type_name -> PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+	3, // 6: PenguinProbe.Navigated.meta:type_name -> PenguinProbe.Meta
+	2, // 7: PenguinProbe.ServerACK.type:type_name -> PenguinProbe.MessageType
+	1, // 8: PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery.server:type_name -> PenguinProbe.Server
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_shared_proto_init() }
@@ -854,18 +801,6 @@ func file_shared_proto_init() {
 			}
 		}
 		file_shared_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ServerErrored); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_shared_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ServerACK); i {
 			case 0:
 				return &v.state
@@ -877,7 +812,7 @@ func file_shared_proto_init() {
 				return nil
 			}
 		}
-		file_shared_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_shared_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ExecutedAdvancedQuery_AdvancedQuery); i {
 			case 0:
 				return &v.state
@@ -900,7 +835,7 @@ func file_shared_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_shared_proto_rawDesc,
 			NumEnums:      3,
-			NumMessages:   8,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

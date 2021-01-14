@@ -1563,244 +1563,6 @@ $root.PenguinProbe = (function() {
         return Navigated;
     })();
 
-    PenguinProbe.ServerErrored = (function() {
-
-        /**
-         * Properties of a ServerErrored.
-         * @memberof PenguinProbe
-         * @interface IServerErrored
-         * @property {PenguinProbe.MessageType|null} [type] ServerErrored type
-         * @property {string|null} [message] ServerErrored message
-         */
-
-        /**
-         * Constructs a new ServerErrored.
-         * @memberof PenguinProbe
-         * @classdesc Represents a ServerErrored.
-         * @implements IServerErrored
-         * @constructor
-         * @param {PenguinProbe.IServerErrored=} [properties] Properties to set
-         */
-        function ServerErrored(properties) {
-            if (properties)
-                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                    if (properties[keys[i]] != null)
-                        this[keys[i]] = properties[keys[i]];
-        }
-
-        /**
-         * ServerErrored type.
-         * @member {PenguinProbe.MessageType} type
-         * @memberof PenguinProbe.ServerErrored
-         * @instance
-         */
-        ServerErrored.prototype.type = 0;
-
-        /**
-         * ServerErrored message.
-         * @member {string} message
-         * @memberof PenguinProbe.ServerErrored
-         * @instance
-         */
-        ServerErrored.prototype.message = "";
-
-        /**
-         * Creates a new ServerErrored instance using the specified properties.
-         * @function create
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {PenguinProbe.IServerErrored=} [properties] Properties to set
-         * @returns {PenguinProbe.ServerErrored} ServerErrored instance
-         */
-        ServerErrored.create = function create(properties) {
-            return new ServerErrored(properties);
-        };
-
-        /**
-         * Encodes the specified ServerErrored message. Does not implicitly {@link PenguinProbe.ServerErrored.verify|verify} messages.
-         * @function encode
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {PenguinProbe.IServerErrored} message ServerErrored message or plain object to encode
-         * @param {$protobuf.Writer} [writer] Writer to encode to
-         * @returns {$protobuf.Writer} Writer
-         */
-        ServerErrored.encode = function encode(message, writer) {
-            if (!writer)
-                writer = $Writer.create();
-            if (message.type != null && Object.hasOwnProperty.call(message, "type"))
-                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.type);
-            if (message.message != null && Object.hasOwnProperty.call(message, "message"))
-                writer.uint32(/* id 2, wireType 2 =*/18).string(message.message);
-            return writer;
-        };
-
-        /**
-         * Encodes the specified ServerErrored message, length delimited. Does not implicitly {@link PenguinProbe.ServerErrored.verify|verify} messages.
-         * @function encodeDelimited
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {PenguinProbe.IServerErrored} message ServerErrored message or plain object to encode
-         * @param {$protobuf.Writer} [writer] Writer to encode to
-         * @returns {$protobuf.Writer} Writer
-         */
-        ServerErrored.encodeDelimited = function encodeDelimited(message, writer) {
-            return this.encode(message, writer).ldelim();
-        };
-
-        /**
-         * Decodes a ServerErrored message from the specified reader or buffer.
-         * @function decode
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @param {number} [length] Message length if known beforehand
-         * @returns {PenguinProbe.ServerErrored} ServerErrored
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        ServerErrored.decode = function decode(reader, length) {
-            if (!(reader instanceof $Reader))
-                reader = $Reader.create(reader);
-            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.PenguinProbe.ServerErrored();
-            while (reader.pos < end) {
-                var tag = reader.uint32();
-                switch (tag >>> 3) {
-                case 1:
-                    message.type = reader.int32();
-                    break;
-                case 2:
-                    message.message = reader.string();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-                }
-            }
-            return message;
-        };
-
-        /**
-         * Decodes a ServerErrored message from the specified reader or buffer, length delimited.
-         * @function decodeDelimited
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {PenguinProbe.ServerErrored} ServerErrored
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        ServerErrored.decodeDelimited = function decodeDelimited(reader) {
-            if (!(reader instanceof $Reader))
-                reader = new $Reader(reader);
-            return this.decode(reader, reader.uint32());
-        };
-
-        /**
-         * Verifies a ServerErrored message.
-         * @function verify
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {Object.<string,*>} message Plain object to verify
-         * @returns {string|null} `null` if valid, otherwise the reason why it is not
-         */
-        ServerErrored.verify = function verify(message) {
-            if (typeof message !== "object" || message === null)
-                return "object expected";
-            if (message.type != null && message.hasOwnProperty("type"))
-                switch (message.type) {
-                default:
-                    return "type: enum value expected";
-                case 0:
-                case 1:
-                case 2:
-                case 64:
-                case 65:
-                    break;
-                }
-            if (message.message != null && message.hasOwnProperty("message"))
-                if (!$util.isString(message.message))
-                    return "message: string expected";
-            return null;
-        };
-
-        /**
-         * Creates a ServerErrored message from a plain object. Also converts values to their respective internal types.
-         * @function fromObject
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {Object.<string,*>} object Plain object
-         * @returns {PenguinProbe.ServerErrored} ServerErrored
-         */
-        ServerErrored.fromObject = function fromObject(object) {
-            if (object instanceof $root.PenguinProbe.ServerErrored)
-                return object;
-            var message = new $root.PenguinProbe.ServerErrored();
-            switch (object.type) {
-            case "ENTERED_SEARCH_RESULT":
-            case 0:
-                message.type = 0;
-                break;
-            case "NAVIGATED":
-            case 1:
-                message.type = 1;
-                break;
-            case "EXECUTED_ADVANCED_QUERY":
-            case 2:
-                message.type = 2;
-                break;
-            case "SERVER_ERRORED":
-            case 64:
-                message.type = 64;
-                break;
-            case "SERVER_ACK":
-            case 65:
-                message.type = 65;
-                break;
-            }
-            if (object.message != null)
-                message.message = String(object.message);
-            return message;
-        };
-
-        /**
-         * Creates a plain object from a ServerErrored message. Also converts values to other types if specified.
-         * @function toObject
-         * @memberof PenguinProbe.ServerErrored
-         * @static
-         * @param {PenguinProbe.ServerErrored} message ServerErrored
-         * @param {$protobuf.IConversionOptions} [options] Conversion options
-         * @returns {Object.<string,*>} Plain object
-         */
-        ServerErrored.toObject = function toObject(message, options) {
-            if (!options)
-                options = {};
-            var object = {};
-            if (options.defaults) {
-                object.type = options.enums === String ? "ENTERED_SEARCH_RESULT" : 0;
-                object.message = "";
-            }
-            if (message.type != null && message.hasOwnProperty("type"))
-                object.type = options.enums === String ? $root.PenguinProbe.MessageType[message.type] : message.type;
-            if (message.message != null && message.hasOwnProperty("message"))
-                object.message = message.message;
-            return object;
-        };
-
-        /**
-         * Converts this ServerErrored to JSON.
-         * @function toJSON
-         * @memberof PenguinProbe.ServerErrored
-         * @instance
-         * @returns {Object.<string,*>} JSON object
-         */
-        ServerErrored.prototype.toJSON = function toJSON() {
-            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-        };
-
-        return ServerErrored;
-    })();
-
     PenguinProbe.ServerACK = (function() {
 
         /**
@@ -1808,6 +1570,7 @@ $root.PenguinProbe = (function() {
          * @memberof PenguinProbe
          * @interface IServerACK
          * @property {PenguinProbe.MessageType|null} [type] ServerACK type
+         * @property {string|null} [message] ServerACK message
          */
 
         /**
@@ -1832,6 +1595,14 @@ $root.PenguinProbe = (function() {
          * @instance
          */
         ServerACK.prototype.type = 0;
+
+        /**
+         * ServerACK message.
+         * @member {string} message
+         * @memberof PenguinProbe.ServerACK
+         * @instance
+         */
+        ServerACK.prototype.message = "";
 
         /**
          * Creates a new ServerACK instance using the specified properties.
@@ -1859,6 +1630,8 @@ $root.PenguinProbe = (function() {
                 writer = $Writer.create();
             if (message.type != null && Object.hasOwnProperty.call(message, "type"))
                 writer.uint32(/* id 1, wireType 0 =*/8).int32(message.type);
+            if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.message);
             return writer;
         };
 
@@ -1895,6 +1668,9 @@ $root.PenguinProbe = (function() {
                 switch (tag >>> 3) {
                 case 1:
                     message.type = reader.int32();
+                    break;
+                case 2:
+                    message.message = reader.string();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1942,6 +1718,9 @@ $root.PenguinProbe = (function() {
                 case 65:
                     break;
                 }
+            if (message.message != null && message.hasOwnProperty("message"))
+                if (!$util.isString(message.message))
+                    return "message: string expected";
             return null;
         };
 
@@ -1979,6 +1758,8 @@ $root.PenguinProbe = (function() {
                 message.type = 65;
                 break;
             }
+            if (object.message != null)
+                message.message = String(object.message);
             return message;
         };
 
@@ -1995,10 +1776,14 @@ $root.PenguinProbe = (function() {
             if (!options)
                 options = {};
             var object = {};
-            if (options.defaults)
+            if (options.defaults) {
                 object.type = options.enums === String ? "ENTERED_SEARCH_RESULT" : 0;
+                object.message = "";
+            }
             if (message.type != null && message.hasOwnProperty("type"))
                 object.type = options.enums === String ? $root.PenguinProbe.MessageType[message.type] : message.type;
+            if (message.message != null && message.hasOwnProperty("message"))
+                object.message = message.message;
             return object;
         };
 

@@ -18,7 +18,8 @@ func NewHub() *Hub {
 	}
 }
 
-// Run listens for channel update and reflects them on the internal Clients property
+// Run listens for channel update on client connect and disconnects
+// and reflects them on the internal Clients property
 func (h *Hub) Run() {
 	for {
 		select {

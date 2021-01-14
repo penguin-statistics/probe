@@ -15,6 +15,15 @@ func NewBonjour(repo *repository.Probe) *Bonjour {
 	return &Bonjour{repo: repo}
 }
 
+func (s *Bonjour) UIDExists(uid string) bool {
+	var req model.Bonjour
+	err := s.repo.DB.First(&req, &model.Bonjour{UID: uid}).Error
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 // Record adds a bonjour request in model.Bonjour to db
 func (s *Bonjour) Record(b *model.Bonjour) error {
 	if err := s.repo.DB.Create(b).Error; err != nil {

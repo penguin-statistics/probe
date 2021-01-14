@@ -11,6 +11,8 @@ type Bonjour struct {
 	CreatedAt time.Time
 
 	Version  *densemver.DenSemVer `query:"v" valid:"required" gorm:"<-:create;type:integer;index"`
-	Platform Platform             `query:"p" valid:"range(0|2)" gorm:"type:smallint;index"`
-	UID      string               `query:"u" valid:"required,stringlength(32|32)" gorm:"type:char(32);index"`
+	Platform *Platform            `query:"p" gorm:"type:smallint;index"`
+	UID      string               `query:"u" valid:"required,stringlength(32|32),alphanum" gorm:"type:char(32);index"`
+
+	Reconnects int `query:"i" gorm:"-"`
 }

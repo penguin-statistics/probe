@@ -56,7 +56,7 @@ func handleWsConn(ws *websocket.Conn, wg *sync.WaitGroup, ctr *uint64) {
 	//		panic(err)
 	//	}
 	//}
-	wg.Done()
+	//wg.Done()
 }
 
 func main() {

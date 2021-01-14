@@ -64,11 +64,12 @@ message Navigated {
   string path = 2;
 }
 
-message ServerErrored {
-  MessageType type = 1;
-  string message = 2;
-}
+//message ServerErrored {
+//  MessageType type = 1;
+//  string message = 2;
+//}
 
 message ServerACK {
   MessageType type = 1;
+  string message = 2;
 }

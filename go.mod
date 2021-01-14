@@ -8,10 +8,12 @@ require (
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/elliotchance/pie v1.38.0
 	github.com/golang/protobuf v1.4.3
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/jpillora/go-tld v1.1.1
 	github.com/labstack/echo/v4 v4.1.17
+	github.com/prometheus/client_golang v1.9.0
 	github.com/sirupsen/logrus v1.7.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/text v0.3.4 // indirect

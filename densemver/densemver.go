@@ -20,7 +20,15 @@ type DenSemVer struct {
 
 // Scan implements sql.Scanner
 func (v *DenSemVer) Scan(src interface{}) error {
+
 	switch src.(type) {
+	case int64:
+		dsv, err := FromInt(uint32(src.(int64)))
+		if err != nil {
+			return err
+		}
+		*v = *dsv
+		return nil
 	case uint32:
 		dsv, err := FromInt(src.(uint32))
 		if err != nil {

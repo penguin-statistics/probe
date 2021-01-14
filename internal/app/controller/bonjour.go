@@ -1,13 +1,16 @@
 package controller
 
 import (
+	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/penguin-statistics/probe/internal/app/model"
 	"github.com/penguin-statistics/probe/internal/app/service"
+	"github.com/penguin-statistics/probe/internal/pkg/commons"
 	"github.com/penguin-statistics/probe/internal/pkg/logger"
-	"github.com/penguin-statistics/probe/internal/pkg/utils"
+	"github.com/penguin-statistics/probe/internal/pkg/messages"
 	"github.com/penguin-statistics/probe/internal/pkg/wspool"
+	"google.golang.org/protobuf/proto"
 	"net/http"
 )
 
@@ -17,60 +20,133 @@ var (
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
 			// TODO: DEV
-			return true || utils.IsValidDomain(r.URL)
+			return true || commons.IsValidDomain(r.URL)
 		},
-		Subprotocols: []string{"pb"},
+		Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+		},
+		EnableCompression: false,
 	}
 	log = logger.New("controller")
+	// Maximum invalid messages a client may send
+	// if client sent invalid messages more than this count, their connection may be forcely closed
+	maxInvalidTolerance = 16
 )
 
 // Bonjour is a bonjour service controller
 type Bonjour struct {
-	service *service.Bonjour
-	hub     *wspool.Hub
+	sBonjour *service.Bonjour
+	sProm    *service.Prometheus
+	hub      *wspool.Hub
 }
 
 // NewBonjour creates a Bonjour controller with service
-func NewBonjour(service *service.Bonjour) *Bonjour {
+func NewBonjour(sbonjour *service.Bonjour, sprom *service.Prometheus) *Bonjour {
 	hub := wspool.NewHub()
 	go hub.Run()
 	return &Bonjour{
-		service: service,
-		hub:     hub,
+		sBonjour: sbonjour,
+		sProm:    sprom,
+		hub:      hub,
 	}
 }
 
 // LiveHandler handles probe reports
-func (ct *Bonjour) LiveHandler(c echo.Context) error {
-	r := new(model.Bonjour)
-	if err := c.Bind(r); err != nil {
-		log.Errorln("failed to bind", err)
+func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
+	req := new(model.Bonjour)
+	if err := ctx.Bind(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	if err := c.Validate(r); err != nil {
-		log.Errorln("failed to validate", err)
+	if err := ctx.Validate(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	if req.Platform == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("platform: field is required"))
 	}
 
-	err := ct.service.Record(r)
+	platform := req.Platform.Marshal()
+
+	// get referer path from bonjour request
+	path, err := commons.CleanClientRoute(ctx.Request().Referer())
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Warnln("invalid referer provided: failed to clean client route:", err)
+		path = "(unspecified)"
 	}
 
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	bc.sProm.RecordReconnection(platform, req.Reconnects)
+
+	// record initial visit records only if this is NOT a reconnecting request
+	if req.Reconnects == 0 {
+		// if uid doesn't exist before, increment the UV value
+		if !bc.sBonjour.UIDExists(req.UID) {
+			bc.sProm.IncUV(platform, path)
+		}
+
+		// record initial page view
+		bc.sProm.IncPV(platform, path)
+
+		// record bonjour request - see how many sessions are there
+		err = bc.sBonjour.Record(req)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err)
+		}
+	}
+
+	// upgrade to websocket
+	ws, err := upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
 	if err != nil {
-		log.Errorln("failed to update http conn to ws conn", err)
-		return err
+		log.Debugln("failed to update http conn to ws conn", err)
+		ctx.Response().Header().Set(echo.HeaderUpgrade, "websocket")
+		return echo.NewHTTPError(http.StatusUpgradeRequired, err)
 	}
 
-	send := make(chan []byte, 256)
-	done := make(chan struct{})
+	client := wspool.NewClient(bc.hub, ws)
 
-	client := wspool.Client{Hub: ct.hub, Conn: ws, Send: send, Done: done}
-	ct.hub.Register <- &client
+	must := func(err error) error {
+		if err != nil {
+			log.Error("malformed client message", err, "tolerance for now but adds InvalidCount")
+			errMsg := wspool.ErrInvalidWsMessage
+
+			client.InvalidCount++
+			if client.InvalidCount >= maxInvalidTolerance {
+				errMsg = wspool.ErrTooManyInvalidMessages
+			}
+
+			client.Send <- errMsg
+			return nil
+		}
+		return nil
+	}
+
+	bc.hub.Register <- client
 	go client.Read()
 	go client.Write()
+	go func() {
+		for {
+			r := <-client.Received
+			switch r.Skeleton.Meta.Type {
+			case messages.MessageType_NAVIGATED:
+				var body messages.Navigated
+				err := must(proto.Unmarshal(r.Body, &body))
+				if err != nil {
+					log.Debugln(err)
+					break
+				}
+				s, err := commons.CleanClientRoute(body.Path)
+				err = must(err)
+				if err != nil {
+					log.Debugln(err)
+					break
+				}
+				bc.sProm.IncPV(req.Platform.Marshal(), s)
 
-	<-done
+			default:
+				log.Warnln("unknown message type", r.Skeleton.Meta.Type)
+				client.Send <- wspool.ErrInvalidWsMessage
+				break
+			}
+		}
+	}()
+
+	<-client.Done
 	return nil
 }

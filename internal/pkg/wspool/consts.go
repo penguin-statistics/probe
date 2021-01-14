@@ -10,11 +10,12 @@ var (
 	// ErrInvalidWsMessage is the error of an invalid websocket message
 	ErrInvalidWsMessage = mustPrepareMessage("invalid websocket message")
 	// ErrInternalError describes a server-side error
-	ErrInternalError = mustPrepareMessage("internal server error")
+	ErrInternalError          = mustPrepareMessage("internal server error")
+	ErrTooManyInvalidMessages = mustPrepareMessage("too many invalid messages")
 )
 
 func mustPrepareMessage(m string) (msg *websocket.PreparedMessage) {
-	evt := &messages.ServerErrored{Message: m}
+	evt := &messages.ServerACK{Message: m}
 	b, err := proto.Marshal(evt)
 	if err != nil {
 		panic(err)

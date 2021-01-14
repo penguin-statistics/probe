@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"errors"
+	"fmt"
 )
 
 const (
@@ -24,8 +25,31 @@ func (p Platform) Value() (driver.Value, error) {
 
 // Scan implements sql.Scanner
 func (p *Platform) Scan(src interface{}) error {
-	*p = src.(Platform)
-	return nil
+	i := src.(int64)
+	switch i {
+	case int64(PlatformWeb):
+		*p = PlatformWeb
+		return nil
+	case int64(PlatformAppIOS):
+		*p = PlatformAppIOS
+		return nil
+	case int64(PlatformAppAndroid):
+		*p = PlatformAppAndroid
+		return nil
+	}
+	return fmt.Errorf("unknown src value of %v", src)
+}
+
+func (p *Platform) Marshal() string {
+	switch *p {
+	case PlatformWeb:
+		return "web"
+	case PlatformAppIOS:
+		return "app:ios"
+	case PlatformAppAndroid:
+		return "app:android"
+	}
+	return "unknown"
 }
 
 // UnmarshalParam implements echo.BindUnmarshaler

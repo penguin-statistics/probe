@@ -1,4 +1,4 @@
-package utils
+package commons
 
 import (
 	"github.com/elliotchance/pie/pie"
@@ -21,4 +21,11 @@ func IsValidDomain(u *url.URL) bool {
 	d := strings.Join([]string{t.Domain, t.TLD}, ".")
 
 	return PenguinDomains.Contains(d)
+}
+
+func PenguinDomainsOrigin() (origins []string) {
+	for _, domain := range PenguinDomains {
+		origins = append(origins, "https://"+domain, "https://*."+domain)
+	}
+	return origins
 }
