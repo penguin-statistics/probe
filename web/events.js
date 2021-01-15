@@ -60,19 +60,19 @@ $root.PenguinProbe = (function() {
      * MessageType enum.
      * @name PenguinProbe.MessageType
      * @enum {number}
-     * @property {number} ENTERED_SEARCH_RESULT=0 ENTERED_SEARCH_RESULT value
+     * @property {number} UNKNOWN=0 UNKNOWN value
      * @property {number} NAVIGATED=1 NAVIGATED value
-     * @property {number} EXECUTED_ADVANCED_QUERY=2 EXECUTED_ADVANCED_QUERY value
-     * @property {number} SERVER_ERRORED=64 SERVER_ERRORED value
-     * @property {number} SERVER_ACK=65 SERVER_ACK value
+     * @property {number} ENTERED_SEARCH_RESULT=2 ENTERED_SEARCH_RESULT value
+     * @property {number} EXECUTED_ADVANCED_QUERY=3 EXECUTED_ADVANCED_QUERY value
+     * @property {number} SERVER_ACK=64 SERVER_ACK value
      */
     PenguinProbe.MessageType = (function() {
         var valuesById = {}, values = Object.create(valuesById);
-        values[valuesById[0] = "ENTERED_SEARCH_RESULT"] = 0;
+        values[valuesById[0] = "UNKNOWN"] = 0;
         values[valuesById[1] = "NAVIGATED"] = 1;
-        values[valuesById[2] = "EXECUTED_ADVANCED_QUERY"] = 2;
-        values[valuesById[64] = "SERVER_ERRORED"] = 64;
-        values[valuesById[65] = "SERVER_ACK"] = 65;
+        values[valuesById[2] = "ENTERED_SEARCH_RESULT"] = 2;
+        values[valuesById[3] = "EXECUTED_ADVANCED_QUERY"] = 3;
+        values[valuesById[64] = "SERVER_ACK"] = 64;
         return values;
     })();
 
@@ -227,8 +227,8 @@ $root.PenguinProbe = (function() {
                 case 0:
                 case 1:
                 case 2:
+                case 3:
                 case 64:
-                case 65:
                     break;
                 }
             if (message.language != null && message.hasOwnProperty("language"))
@@ -258,7 +258,7 @@ $root.PenguinProbe = (function() {
                 return object;
             var message = new $root.PenguinProbe.Meta();
             switch (object.type) {
-            case "ENTERED_SEARCH_RESULT":
+            case "UNKNOWN":
             case 0:
                 message.type = 0;
                 break;
@@ -266,17 +266,17 @@ $root.PenguinProbe = (function() {
             case 1:
                 message.type = 1;
                 break;
-            case "EXECUTED_ADVANCED_QUERY":
+            case "ENTERED_SEARCH_RESULT":
             case 2:
                 message.type = 2;
                 break;
-            case "SERVER_ERRORED":
-            case 64:
-                message.type = 64;
+            case "EXECUTED_ADVANCED_QUERY":
+            case 3:
+                message.type = 3;
                 break;
             case "SERVER_ACK":
-            case 65:
-                message.type = 65;
+            case 64:
+                message.type = 64;
                 break;
             }
             switch (object.language) {
@@ -318,7 +318,7 @@ $root.PenguinProbe = (function() {
                 options = {};
             var object = {};
             if (options.defaults) {
-                object.type = options.enums === String ? "ENTERED_SEARCH_RESULT" : 0;
+                object.type = options.enums === String ? "UNKNOWN" : 0;
                 object.language = options.enums === String ? "ZH_CN" : 0;
             }
             if (message.type != null && message.hasOwnProperty("type"))
@@ -1082,6 +1082,10 @@ $root.PenguinProbe = (function() {
              * @property {string|null} [stageId] AdvancedQuery stageId
              * @property {Array.<string>|null} [itemIds] AdvancedQuery itemIds
              * @property {PenguinProbe.Server|null} [server] AdvancedQuery server
+             * @property {boolean|null} [isPersonal] AdvancedQuery isPersonal
+             * @property {number|Long|null} [start] AdvancedQuery start
+             * @property {number|Long|null} [end] AdvancedQuery end
+             * @property {number|Long|null} [interval] AdvancedQuery interval
              */
 
             /**
@@ -1125,6 +1129,38 @@ $root.PenguinProbe = (function() {
             AdvancedQuery.prototype.server = 0;
 
             /**
+             * AdvancedQuery isPersonal.
+             * @member {boolean} isPersonal
+             * @memberof PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+             * @instance
+             */
+            AdvancedQuery.prototype.isPersonal = false;
+
+            /**
+             * AdvancedQuery start.
+             * @member {number|Long} start
+             * @memberof PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+             * @instance
+             */
+            AdvancedQuery.prototype.start = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+            /**
+             * AdvancedQuery end.
+             * @member {number|Long} end
+             * @memberof PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+             * @instance
+             */
+            AdvancedQuery.prototype.end = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+            /**
+             * AdvancedQuery interval.
+             * @member {number|Long} interval
+             * @memberof PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+             * @instance
+             */
+            AdvancedQuery.prototype.interval = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+
+            /**
              * Creates a new AdvancedQuery instance using the specified properties.
              * @function create
              * @memberof PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
@@ -1155,6 +1191,14 @@ $root.PenguinProbe = (function() {
                         writer.uint32(/* id 2, wireType 2 =*/18).string(message.itemIds[i]);
                 if (message.server != null && Object.hasOwnProperty.call(message, "server"))
                     writer.uint32(/* id 3, wireType 0 =*/24).int32(message.server);
+                if (message.isPersonal != null && Object.hasOwnProperty.call(message, "isPersonal"))
+                    writer.uint32(/* id 4, wireType 0 =*/32).bool(message.isPersonal);
+                if (message.start != null && Object.hasOwnProperty.call(message, "start"))
+                    writer.uint32(/* id 5, wireType 0 =*/40).uint64(message.start);
+                if (message.end != null && Object.hasOwnProperty.call(message, "end"))
+                    writer.uint32(/* id 6, wireType 0 =*/48).uint64(message.end);
+                if (message.interval != null && Object.hasOwnProperty.call(message, "interval"))
+                    writer.uint32(/* id 7, wireType 0 =*/56).uint64(message.interval);
                 return writer;
             };
 
@@ -1199,6 +1243,18 @@ $root.PenguinProbe = (function() {
                         break;
                     case 3:
                         message.server = reader.int32();
+                        break;
+                    case 4:
+                        message.isPersonal = reader.bool();
+                        break;
+                    case 5:
+                        message.start = reader.uint64();
+                        break;
+                    case 6:
+                        message.end = reader.uint64();
+                        break;
+                    case 7:
+                        message.interval = reader.uint64();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1255,6 +1311,18 @@ $root.PenguinProbe = (function() {
                     case 3:
                         break;
                     }
+                if (message.isPersonal != null && message.hasOwnProperty("isPersonal"))
+                    if (typeof message.isPersonal !== "boolean")
+                        return "isPersonal: boolean expected";
+                if (message.start != null && message.hasOwnProperty("start"))
+                    if (!$util.isInteger(message.start) && !(message.start && $util.isInteger(message.start.low) && $util.isInteger(message.start.high)))
+                        return "start: integer|Long expected";
+                if (message.end != null && message.hasOwnProperty("end"))
+                    if (!$util.isInteger(message.end) && !(message.end && $util.isInteger(message.end.low) && $util.isInteger(message.end.high)))
+                        return "end: integer|Long expected";
+                if (message.interval != null && message.hasOwnProperty("interval"))
+                    if (!$util.isInteger(message.interval) && !(message.interval && $util.isInteger(message.interval.low) && $util.isInteger(message.interval.high)))
+                        return "interval: integer|Long expected";
                 return null;
             };
 
@@ -1297,6 +1365,35 @@ $root.PenguinProbe = (function() {
                     message.server = 3;
                     break;
                 }
+                if (object.isPersonal != null)
+                    message.isPersonal = Boolean(object.isPersonal);
+                if (object.start != null)
+                    if ($util.Long)
+                        (message.start = $util.Long.fromValue(object.start)).unsigned = true;
+                    else if (typeof object.start === "string")
+                        message.start = parseInt(object.start, 10);
+                    else if (typeof object.start === "number")
+                        message.start = object.start;
+                    else if (typeof object.start === "object")
+                        message.start = new $util.LongBits(object.start.low >>> 0, object.start.high >>> 0).toNumber(true);
+                if (object.end != null)
+                    if ($util.Long)
+                        (message.end = $util.Long.fromValue(object.end)).unsigned = true;
+                    else if (typeof object.end === "string")
+                        message.end = parseInt(object.end, 10);
+                    else if (typeof object.end === "number")
+                        message.end = object.end;
+                    else if (typeof object.end === "object")
+                        message.end = new $util.LongBits(object.end.low >>> 0, object.end.high >>> 0).toNumber(true);
+                if (object.interval != null)
+                    if ($util.Long)
+                        (message.interval = $util.Long.fromValue(object.interval)).unsigned = true;
+                    else if (typeof object.interval === "string")
+                        message.interval = parseInt(object.interval, 10);
+                    else if (typeof object.interval === "number")
+                        message.interval = object.interval;
+                    else if (typeof object.interval === "object")
+                        message.interval = new $util.LongBits(object.interval.low >>> 0, object.interval.high >>> 0).toNumber(true);
                 return message;
             };
 
@@ -1318,6 +1415,22 @@ $root.PenguinProbe = (function() {
                 if (options.defaults) {
                     object.stageId = "";
                     object.server = options.enums === String ? "CN" : 0;
+                    object.isPersonal = false;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, true);
+                        object.start = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.start = options.longs === String ? "0" : 0;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, true);
+                        object.end = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.end = options.longs === String ? "0" : 0;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, true);
+                        object.interval = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.interval = options.longs === String ? "0" : 0;
                 }
                 if (message.stageId != null && message.hasOwnProperty("stageId"))
                     object.stageId = message.stageId;
@@ -1328,6 +1441,23 @@ $root.PenguinProbe = (function() {
                 }
                 if (message.server != null && message.hasOwnProperty("server"))
                     object.server = options.enums === String ? $root.PenguinProbe.Server[message.server] : message.server;
+                if (message.isPersonal != null && message.hasOwnProperty("isPersonal"))
+                    object.isPersonal = message.isPersonal;
+                if (message.start != null && message.hasOwnProperty("start"))
+                    if (typeof message.start === "number")
+                        object.start = options.longs === String ? String(message.start) : message.start;
+                    else
+                        object.start = options.longs === String ? $util.Long.prototype.toString.call(message.start) : options.longs === Number ? new $util.LongBits(message.start.low >>> 0, message.start.high >>> 0).toNumber(true) : message.start;
+                if (message.end != null && message.hasOwnProperty("end"))
+                    if (typeof message.end === "number")
+                        object.end = options.longs === String ? String(message.end) : message.end;
+                    else
+                        object.end = options.longs === String ? $util.Long.prototype.toString.call(message.end) : options.longs === Number ? new $util.LongBits(message.end.low >>> 0, message.end.high >>> 0).toNumber(true) : message.end;
+                if (message.interval != null && message.hasOwnProperty("interval"))
+                    if (typeof message.interval === "number")
+                        object.interval = options.longs === String ? String(message.interval) : message.interval;
+                    else
+                        object.interval = options.longs === String ? $util.Long.prototype.toString.call(message.interval) : options.longs === Number ? new $util.LongBits(message.interval.low >>> 0, message.interval.high >>> 0).toNumber(true) : message.interval;
                 return object;
             };
 
@@ -1714,8 +1844,8 @@ $root.PenguinProbe = (function() {
                 case 0:
                 case 1:
                 case 2:
+                case 3:
                 case 64:
-                case 65:
                     break;
                 }
             if (message.message != null && message.hasOwnProperty("message"))
@@ -1737,7 +1867,7 @@ $root.PenguinProbe = (function() {
                 return object;
             var message = new $root.PenguinProbe.ServerACK();
             switch (object.type) {
-            case "ENTERED_SEARCH_RESULT":
+            case "UNKNOWN":
             case 0:
                 message.type = 0;
                 break;
@@ -1745,17 +1875,17 @@ $root.PenguinProbe = (function() {
             case 1:
                 message.type = 1;
                 break;
-            case "EXECUTED_ADVANCED_QUERY":
+            case "ENTERED_SEARCH_RESULT":
             case 2:
                 message.type = 2;
                 break;
-            case "SERVER_ERRORED":
-            case 64:
-                message.type = 64;
+            case "EXECUTED_ADVANCED_QUERY":
+            case 3:
+                message.type = 3;
                 break;
             case "SERVER_ACK":
-            case 65:
-                message.type = 65;
+            case 64:
+                message.type = 64;
                 break;
             }
             if (object.message != null)
@@ -1777,7 +1907,7 @@ $root.PenguinProbe = (function() {
                 options = {};
             var object = {};
             if (options.defaults) {
-                object.type = options.enums === String ? "ENTERED_SEARCH_RESULT" : 0;
+                object.type = options.enums === String ? "UNKNOWN" : 0;
                 object.message = "";
             }
             if (message.type != null && message.hasOwnProperty("type"))

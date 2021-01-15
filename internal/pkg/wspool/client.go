@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/penguin-statistics/probe/internal/pkg/messages"
+	"go.uber.org/ratelimit"
 	"google.golang.org/protobuf/proto"
 	"time"
 )
@@ -17,10 +18,13 @@ const (
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	// TODO: fine tuning
-	pingPeriod = (pongWait * 9) / 10
+	pingPeriod = 25 * time.Second
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
+
+	// Maximum messages per second
+	maxRPS = 20
 )
 
 // ClientRequest is the skeleton-unmarshalled client side request
@@ -31,11 +35,12 @@ type ClientRequest struct {
 
 // Client is a intermediate module to connect user-side websocket client with hub
 type Client struct {
-	Hub      *Hub
-	Conn     *websocket.Conn
-	Received chan ClientRequest
-	Send     chan *websocket.PreparedMessage
-	Done     chan struct{}
+	Hub         *Hub
+	Conn        *websocket.Conn
+	Received    chan ClientRequest
+	Send        chan *websocket.PreparedMessage
+	Done        chan struct{}
+	rateLimiter ratelimit.Limiter
 
 	InvalidCount int
 }
@@ -47,6 +52,7 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 		Received:     make(chan ClientRequest, 64),
 		Send:         make(chan *websocket.PreparedMessage, 256),
 		Done:         make(chan struct{}),
+		rateLimiter:  ratelimit.New(20),
 		InvalidCount: 0,
 	}
 }
@@ -68,6 +74,7 @@ func (c *Client) Read() {
 	})
 
 	for {
+		c.rateLimiter.Take()
 		s, p, err := c.readSkeleton()
 		if err != nil {
 			break
@@ -101,7 +108,9 @@ func (c *Client) ack(messageType messages.MessageType) error {
 func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 	typ, p, err := c.Conn.ReadMessage()
 	if err != nil {
-		log.Debugln("error occurred when reading message", err)
+		if !websocket.IsCloseError(err, websocket.CloseGoingAway) {
+			log.Debugln("error occurred when reading message", err)
+		}
 		return &messages.Skeleton{}, nil, err
 	}
 	if typ != websocket.BinaryMessage && typ != websocket.PongMessage {

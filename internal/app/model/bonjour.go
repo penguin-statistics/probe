@@ -12,7 +12,9 @@ type Bonjour struct {
 
 	Version  *densemver.DenSemVer `query:"v" valid:"required" gorm:"<-:create;type:integer;index"`
 	Platform *Platform            `query:"p" gorm:"type:smallint;index"`
-	UID      string               `query:"u" valid:"required,stringlength(32|32),alphanum" gorm:"type:char(32);index"`
+	UID      string               `query:"u" valid:"stringlength(32|32),alphanum" gorm:"type:char(32);index"`
+	Legacy   uint8                `query:"l" gorm:"index"`
 
-	Reconnects int `query:"i" gorm:"-"`
+	Referer    string `query:"r" gorm:"-"`
+	Reconnects int    `query:"i" gorm:"-"`
 }

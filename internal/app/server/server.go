@@ -40,10 +40,10 @@ func Bootstrap() error {
 	c := controller.NewBonjour(sBonjour, sProm)
 
 	// TODO: DEV
-	{
-		e.File("/web", "web/index.html")
-		e.File("/web/events.js", "web/events.js")
-	}
+	//{
+	//	e.File("/web", "web/index.html")
+	//	e.File("/web/events.js", "web/events.js")
+	//}
 
 	e.GET("/", c.LiveHandler)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))

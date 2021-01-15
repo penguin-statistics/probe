@@ -2,6 +2,8 @@ package controller
 
 import (
 	"errors"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/dchest/uniuri"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"github.com/penguin-statistics/probe/internal/app/model"
@@ -40,12 +42,17 @@ type Bonjour struct {
 }
 
 // NewBonjour creates a Bonjour controller with service
-func NewBonjour(sbonjour *service.Bonjour, sprom *service.Prometheus) *Bonjour {
+func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
 	hub := wspool.NewHub()
 	go hub.Run()
+
+	sProm.RegisterLiveUserFunc(func() float64 {
+		return float64(len(hub.Clients))
+	})
+
 	return &Bonjour{
-		sBonjour: sbonjour,
-		sProm:    sprom,
+		sBonjour: sBonjour,
+		sProm:    sProm,
 		hub:      hub,
 	}
 }
@@ -66,17 +73,31 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 	platform := req.Platform.Marshal()
 
 	// get referer path from bonjour request
-	path, err := commons.CleanClientRoute(ctx.Request().Referer())
+	path, err := commons.CleanClientRoute(req.Referer)
 	if err != nil {
-		log.Warnln("invalid referer provided: failed to clean client route:", err)
+		log.Debugln("invalid referer provided: failed to clean client route:", err)
 		path = "(unspecified)"
+	}
+
+	// if a legacy client, we only record basic request info and return ok
+	if req.Legacy != 0 {
+		// generate a uid for them
+		req.UID = uniuri.NewLen(32)
+
+		// record bonjour request - see how many sessions are there
+		_ = bc.sBonjour.Record(req)
+
+		bc.sProm.IncUV(platform, path)
+		bc.sProm.IncPV(platform, path)
+
+		return ctx.NoContent(http.StatusNoContent)
 	}
 
 	bc.sProm.RecordReconnection(platform, req.Reconnects)
 
 	// record initial visit records only if this is NOT a reconnecting request
 	if req.Reconnects == 0 {
-		// if uid doesn't exist before, increment the UV value
+		// if uid doesn't exist before, or it is a legacy client, increment the UV value
 		if !bc.sBonjour.UIDExists(req.UID) {
 			bc.sProm.IncUV(platform, path)
 		}
@@ -137,7 +158,25 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 					log.Debugln(err)
 					break
 				}
-				bc.sProm.IncPV(req.Platform.Marshal(), s)
+				bc.sProm.IncPV(platform, s)
+
+			case messages.MessageType_ENTERED_SEARCH_RESULT:
+				var body messages.EnteredSearchResult
+				err := must(proto.Unmarshal(r.Body, &body))
+				if err != nil {
+					log.Debugln(err)
+					break
+				}
+				log.Infoln("Client Report: entered search result: query", body.Query, "(stageId", body.GetStageId(), "itemId", body.GetItemId(), ") at position", body.Position)
+
+			case messages.MessageType_EXECUTED_ADVANCED_QUERY:
+				var body messages.ExecutedAdvancedQuery
+				err := must(proto.Unmarshal(r.Body, &body))
+				if err != nil {
+					log.Debugln(err)
+					break
+				}
+				log.Infoln("Client Report: performed advanced queries:", spew.Sdump(body.Queries))
 
 			default:
 				log.Warnln("unknown message type", r.Skeleton.Meta.Type)

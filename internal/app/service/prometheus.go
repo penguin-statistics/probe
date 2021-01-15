@@ -10,9 +10,10 @@ const (
 )
 
 type Prometheus struct {
-	pv     *prometheus.CounterVec
-	uv     *prometheus.CounterVec
-	reconn *prometheus.HistogramVec
+	pv        *prometheus.CounterVec
+	uv        *prometheus.CounterVec
+	reconn    *prometheus.HistogramVec
+	liveUsers *prometheus.GaugeFunc
 }
 
 func NewPrometheus() *Prometheus {
@@ -46,6 +47,16 @@ func (p *Prometheus) IncPV(platform, path string) {
 
 func (p *Prometheus) RecordReconnection(platform string, reconnects int) {
 	p.reconn.WithLabelValues(platform).Observe(float64(reconnects))
+}
+
+func (p *Prometheus) RegisterLiveUserFunc(function func() float64) {
+	g := promauto.NewGaugeFunc(prometheus.GaugeOpts{
+		Namespace: PromNamespace,
+		Name:      "live_users",
+		Help:      "Live users connected to probe",
+	}, function)
+
+	p.liveUsers = &g
 }
 
 //(p *Prometheus)

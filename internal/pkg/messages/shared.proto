@@ -19,12 +19,12 @@ enum Server {
 }
 
 enum MessageType {
-  ENTERED_SEARCH_RESULT = 0;
+  UNKNOWN = 0;
   NAVIGATED = 1;
-  EXECUTED_ADVANCED_QUERY = 2;
+  ENTERED_SEARCH_RESULT = 2;
+  EXECUTED_ADVANCED_QUERY = 3;
 
-  SERVER_ERRORED = 64;
-  SERVER_ACK = 65;
+  SERVER_ACK = 64;
 }
 
 message Meta {
@@ -51,8 +51,10 @@ message ExecutedAdvancedQuery {
     string stageId = 1;
     repeated string itemIds = 2;
     Server server = 3;
-    // we don't include range, source and interval in our probe report yet
-    reserved 4 to 6;
+    bool isPersonal = 4;
+    uint64 start = 5;
+    uint64 end = 6;
+    uint64 interval = 7;
   }
 
   Meta meta = 1;

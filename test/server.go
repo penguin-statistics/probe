@@ -14,26 +14,19 @@ import (
 )
 
 var endpoint = "ws://localhost:8100/"
-var pre []byte
-
-func init() {
-	m, err := proto.Marshal(&messages.Navigated{
-		Meta: &messages.Meta{
-			Type:     messages.MessageType_NAVIGATED,
-			Language: messages.Language_ZH_CN,
-		},
-		Path: uniuri.NewLen(64),
-	})
-	if err != nil {
-		panic(err)
-	}
-	pre = m
-}
 
 func handleWsConn(ws *websocket.Conn, wg *sync.WaitGroup, ctr *uint64) {
 	//t := time.Now()
 	for {
-		err := ws.WriteMessage(websocket.BinaryMessage, pre)
+		m, _ := proto.Marshal(&messages.Navigated{
+			Meta: &messages.Meta{
+				Type:     messages.MessageType_NAVIGATED,
+				Language: messages.Language_ZH_CN,
+			},
+			Path: "/" + uniuri.NewLen(64),
+		})
+
+		err := ws.WriteMessage(websocket.BinaryMessage, m)
 		if err != nil {
 			panic(err)
 		}
