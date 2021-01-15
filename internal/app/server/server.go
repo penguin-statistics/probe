@@ -8,14 +8,18 @@ import (
 	"github.com/penguin-statistics/probe/internal/app/service"
 	"github.com/penguin-statistics/probe/internal/pkg/commons"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/spf13/viper"
 	"net/http"
 	"time"
 )
 
 // Bootstrap starts the http server up
 func Bootstrap() error {
+	viper.SetEnvPrefix("penguinprobe")
+	viper.AutomaticEnv()
+
 	e := echo.New()
-	e.Debug = true
+	e.Debug = viper.GetBool("debug")
 	e.Validator = &Validator{}
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
@@ -34,7 +38,7 @@ func Bootstrap() error {
 	}
 
 	// TODO: config management
-	r := repository.NewProbe("host=localhost user=root password=root dbname=penguinprobe port=5432 sslmode=disable TimeZone=Asia/Shanghai")
+	r := repository.NewProbe(viper.GetString("dsn"))
 	sBonjour := service.NewBonjour(r)
 	sProm := service.NewPrometheus()
 	c := controller.NewBonjour(sBonjour, sProm)

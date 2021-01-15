@@ -17,6 +17,7 @@ require (
 	github.com/mitchellh/go-server-timing v1.0.1
 	github.com/prometheus/client_golang v1.9.0
 	github.com/sirupsen/logrus v1.7.0
+	github.com/spf13/viper v1.7.1
 	github.com/uber-go/ratelimit v0.1.0 // indirect
 	go.uber.org/ratelimit v0.1.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
