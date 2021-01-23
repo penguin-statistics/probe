@@ -17,17 +17,6 @@ import (
 )
 
 var (
-	upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-		CheckOrigin: func(r *http.Request) bool {
-			// TODO: DEV
-			return true || commons.IsValidDomain(r.URL)
-		},
-		Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
-		},
-		EnableCompression: false,
-	}
 	log = logger.New("controller")
 	// Maximum invalid messages a client may send
 	// if client sent invalid messages more than this count, their connection may be forcely closed
@@ -39,6 +28,7 @@ type Bonjour struct {
 	sBonjour *service.Bonjour
 	sProm    *service.Prometheus
 	hub      *wspool.Hub
+	upgrader *websocket.Upgrader
 }
 
 // NewBonjour creates a Bonjour controller with service
@@ -49,11 +39,26 @@ func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
 	sProm.RegisterLiveUserFunc(func() float64 {
 		return float64(len(hub.Clients))
 	})
+	sProm.RegisterUsersFunc(func() float64 {
+		count, err := sBonjour.Count()
+		if err != nil {
+			log.Errorln("failed to get users count", err)
+		}
+		return float64(count)
+	})
 
 	return &Bonjour{
 		sBonjour: sBonjour,
 		sProm:    sProm,
 		hub:      hub,
+		upgrader: &websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin:     commons.GenOriginChecker(),
+			Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+			},
+			EnableCompression: false,
+		},
 	}
 }
 
@@ -93,16 +98,15 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 		return ctx.NoContent(http.StatusNoContent)
 	}
 
+	// record reconnections
 	bc.sProm.RecordReconnection(platform, req.Reconnects)
 
 	// record initial visit records only if this is NOT a reconnecting request
 	if req.Reconnects == 0 {
-		// if uid doesn't exist before, or it is a legacy client, increment the UV value
-		if !bc.sBonjour.UIDExists(req.UID) {
-			bc.sProm.IncUV(platform, path)
-		}
+		// increment the uv since this is a probe request that would initiate on and only on reconnect==0
+		bc.sProm.IncUV(platform, path)
 
-		// record initial page view
+		// record initial page view that comes with initial probe request
 		bc.sProm.IncPV(platform, path)
 
 		// record bonjour request - see how many sessions are there
@@ -113,7 +117,7 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 	}
 
 	// upgrade to websocket
-	ws, err := upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
+	ws, err := bc.upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
 	if err != nil {
 		log.Debugln("failed to update http conn to ws conn", err)
 		ctx.Response().Header().Set(echo.HeaderUpgrade, "websocket")
@@ -141,9 +145,16 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 	bc.hub.Register <- client
 	go client.Read()
 	go client.Write()
-	go func() {
-		for {
-			r := <-client.Received
+	for {
+		select {
+		case _, ok := <-client.Closed:
+			if !ok {
+				return nil
+			}
+		case r, ok := <-client.Received:
+			if !ok {
+				return nil
+			}
 			switch r.Skeleton.Meta.Type {
 			case messages.MessageType_NAVIGATED:
 				var body messages.Navigated
@@ -184,8 +195,5 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 				break
 			}
 		}
-	}()
-
-	<-client.Done
-	return nil
+	}
 }

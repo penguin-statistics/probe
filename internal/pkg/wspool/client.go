@@ -11,14 +11,13 @@ import (
 
 const (
 	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
+	writeWait = 30 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	pongWait = 30 * time.Second
+	pongWait = 60 * time.Minute
 
 	// Send pings to peer with this period. Must be less than pongWait.
-	// TODO: fine tuning
-	pingPeriod = 25 * time.Second
+	pingPeriod = 30 * time.Second
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
@@ -39,7 +38,7 @@ type Client struct {
 	Conn        *websocket.Conn
 	Received    chan ClientRequest
 	Send        chan *websocket.PreparedMessage
-	Done        chan struct{}
+	Closed      chan struct{}
 	rateLimiter ratelimit.Limiter
 
 	InvalidCount int
@@ -50,9 +49,9 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 		Hub:          hub,
 		Conn:         conn,
 		Received:     make(chan ClientRequest, 64),
-		Send:         make(chan *websocket.PreparedMessage, 256),
-		Done:         make(chan struct{}),
-		rateLimiter:  ratelimit.New(20),
+		Send:         make(chan *websocket.PreparedMessage, 64),
+		Closed:       make(chan struct{}, 1),
+		rateLimiter:  ratelimit.New(maxRPS),
 		InvalidCount: 0,
 	}
 }
@@ -60,9 +59,7 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 // Read block-reads from the underlying websocket.Conn. It also parses skeleton for further unmarshalling
 func (c *Client) Read() {
 	defer func() {
-		c.Hub.Unregister <- c
-		c.Done <- struct{}{}
-		c.Conn.Close()
+		c.Close()
 	}()
 
 	c.Conn.SetReadLimit(maxMessageSize)
@@ -129,12 +126,18 @@ func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 	return &skeleton, p, nil
 }
 
+func (c *Client) Close() {
+	c.Hub.Unregister <- c
+	c.Closed <- struct{}{}
+	c.Conn.Close()
+}
+
 func (c *Client) Write() {
 	log.Traceln("starting ping ticker with period of", pingPeriod)
 	pingTicker := time.NewTicker(pingPeriod)
 	defer func() {
 		pingTicker.Stop()
-		c.Conn.Close()
+		c.Close()
 	}()
 	for {
 		select {
@@ -150,11 +153,11 @@ func (c *Client) Write() {
 			err := c.Conn.WritePreparedMessage(message)
 			if err != nil {
 				log.Warnln("failed to Send message", err)
-				break
+				c.InvalidCount++
 			}
 			log.Traceln("ws data sent")
 		case <-pingTicker.C:
-			log.Traceln("times up: sending ping to client")
+			log.Traceln("time's up: sending ping to client")
 
 			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			err := c.Conn.WriteMessage(websocket.PingMessage, nil)

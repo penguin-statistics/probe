@@ -1,0 +1,7 @@
+http:
+  server: "localhost:8100"
+
+app:
+  dsn: "host=localhost user=root password=root dbname=penguinprobe port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+  debug: true
+  pprof: true

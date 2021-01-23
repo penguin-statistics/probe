@@ -12,6 +12,7 @@ const (
 type Prometheus struct {
 	pv        *prometheus.CounterVec
 	uv        *prometheus.CounterVec
+	users     *prometheus.CounterFunc
 	reconn    *prometheus.HistogramVec
 	liveUsers *prometheus.GaugeFunc
 }
@@ -57,6 +58,16 @@ func (p *Prometheus) RegisterLiveUserFunc(function func() float64) {
 	}, function)
 
 	p.liveUsers = &g
+}
+
+func (p *Prometheus) RegisterUsersFunc(function func() float64) {
+	g := promauto.NewCounterFunc(prometheus.CounterOpts{
+		Namespace: PromNamespace,
+		Name:      "users_count",
+		Help:      "Users count in total which connected to the probe service",
+	}, function)
+
+	p.users = &g
 }
 
 //(p *Prometheus)

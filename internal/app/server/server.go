@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/penguin-statistics/probe/internal/app/controller"
@@ -17,9 +18,18 @@ import (
 func Bootstrap() error {
 	viper.SetEnvPrefix("penguinprobe")
 	viper.AutomaticEnv()
+	viper.AddConfigPath(".")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	if viper.GetBool("app.debug") {
+		fmt.Println("debug enabled")
+	}
 
 	e := echo.New()
-	e.Debug = viper.GetBool("debug")
+	e.Debug = viper.GetBool("app.debug")
 	e.Validator = &Validator{}
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
@@ -37,21 +47,18 @@ func Bootstrap() error {
 		e.DefaultHTTPErrorHandler(err, c)
 	}
 
-	// TODO: config management
-	r := repository.NewProbe(viper.GetString("dsn"))
+	r := repository.NewProbe(viper.GetString("app.dsn"))
 	sBonjour := service.NewBonjour(r)
 	sProm := service.NewPrometheus()
 	c := controller.NewBonjour(sBonjour, sProm)
 
-	// TODO: DEV
-	//{
-	//	e.File("/web", "web/index.html")
-	//	e.File("/web/events.js", "web/events.js")
-	//}
+	if viper.GetBool("app.debug") {
+		e.File("/web", "web/index.html")
+		e.File("/web/events.js", "web/events.js")
+	}
 
 	e.GET("/", c.LiveHandler)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
-	// TODO: config management
-	return e.Start("localhost:8100")
+	return e.Start(viper.GetString("http.server"))
 }

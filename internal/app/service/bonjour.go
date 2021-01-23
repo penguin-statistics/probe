@@ -31,3 +31,12 @@ func (s *Bonjour) Record(b *model.Bonjour) error {
 	}
 	return nil
 }
+
+// Count counts current bonjour requests from db
+func (s *Bonjour) Count() (int64, error) {
+	var count int64
+	if err := s.repo.DB.Model(&model.Bonjour{}).Count(&count).Error; err != nil {
+		return -1, err
+	}
+	return count, nil
+}

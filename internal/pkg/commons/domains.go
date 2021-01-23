@@ -3,6 +3,8 @@ package commons
 import (
 	"github.com/elliotchance/pie/pie"
 	"github.com/jpillora/go-tld"
+	"github.com/spf13/viper"
+	"net/http"
 	"net/url"
 	"strings"
 )
@@ -21,6 +23,18 @@ func IsValidDomain(u *url.URL) bool {
 	d := strings.Join([]string{t.Domain, t.TLD}, ".")
 
 	return PenguinDomains.Contains(d)
+}
+
+func GenOriginChecker() func(r *http.Request) bool {
+	if viper.GetBool("app.debug") {
+		return func(r *http.Request) bool {
+			return true
+		}
+	} else {
+		return func(r *http.Request) bool {
+			return IsValidDomain(r.URL)
+		}
+	}
 }
 
 func PenguinDomainsOrigin() (origins []string) {

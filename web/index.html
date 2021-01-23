@@ -60,7 +60,7 @@
 
 </ul>
 <!--<script src="https://cdn.jsdelivr.net/gh/dcodeIO/protobuf.js@6.10.2/dist/protobuf.js"></script>-->
-<script src="web/events.js"></script>
+<!--<script src="web/events.js"></script>-->
 <script>
     const savedConsole = console
 
@@ -141,7 +141,8 @@
     const preset = {
         v: "v3.4.1",
         p: "web",
-        u: randomString(32)
+        u: "8cfJ22XhS5pSTKFtoeR1r9oVBa98J3Sj",
+        r: "/"
     }
 
     const searchParams = new URLSearchParams(preset)
@@ -152,7 +153,7 @@
     url.search = searchParams.toString()
     logger.info(url.toString())
 
-    const ws = new WebSocket(url.toString(), "pb")
+    const ws = new WebSocket(url.toString())
     ws.onopen = function ({type}) {
         logger.info("WebSocket connection opened:", {type})
         start()
