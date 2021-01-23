@@ -128,16 +128,9 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 
 	must := func(err error) error {
 		if err != nil {
-			log.Error("malformed client message", err, "tolerance for now but adds InvalidCount")
-			errMsg := wspool.ErrInvalidWsMessage
-
-			client.InvalidCount++
-			if client.InvalidCount >= maxInvalidTolerance {
-				errMsg = wspool.ErrTooManyInvalidMessages
-			}
-
-			client.Send <- errMsg
-			return nil
+			client.Send <- wspool.ErrInvalidWsMessage
+			log.Traceln(err)
+			return err
 		}
 		return nil
 	}
@@ -147,12 +140,12 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 	go client.Write()
 	for {
 		select {
-		case _, ok := <-client.Closed:
-			if !ok {
+		case _, more := <-client.Closed:
+			if !more {
 				return nil
 			}
-		case r, ok := <-client.Received:
-			if !ok {
+		case r, more := <-client.Received:
+			if !more {
 				return nil
 			}
 			switch r.Skeleton.Meta.Type {
@@ -160,13 +153,11 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 				var body messages.Navigated
 				err := must(proto.Unmarshal(r.Body, &body))
 				if err != nil {
-					log.Debugln(err)
 					break
 				}
 				s, err := commons.CleanClientRoute(body.Path)
 				err = must(err)
 				if err != nil {
-					log.Debugln(err)
 					break
 				}
 				bc.sProm.IncPV(platform, s)
@@ -175,7 +166,6 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 				var body messages.EnteredSearchResult
 				err := must(proto.Unmarshal(r.Body, &body))
 				if err != nil {
-					log.Debugln(err)
 					break
 				}
 				log.Infoln("Client Report: entered search result: query", body.Query, "(stageId", body.GetStageId(), "itemId", body.GetItemId(), ") at position", body.Position)
@@ -184,13 +174,12 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 				var body messages.ExecutedAdvancedQuery
 				err := must(proto.Unmarshal(r.Body, &body))
 				if err != nil {
-					log.Debugln(err)
 					break
 				}
 				log.Infoln("Client Report: performed advanced queries:", spew.Sdump(body.Queries))
 
 			default:
-				log.Warnln("unknown message type", r.Skeleton.Meta.Type)
+				log.Debugln("unknown message type", r.Skeleton.Meta.Type)
 				client.Send <- wspool.ErrInvalidWsMessage
 				break
 			}

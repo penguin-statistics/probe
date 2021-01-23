@@ -2,11 +2,17 @@
 
 package wspool
 
+import (
+	"github.com/penguin-statistics/probe/internal/pkg/logger"
+	"github.com/sirupsen/logrus"
+)
+
 // Hub consists of current active clients
 type Hub struct {
 	Clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client
+	logger     *logrus.Entry
 }
 
 // NewHub creates a new Hub
@@ -15,6 +21,7 @@ func NewHub() *Hub {
 		Clients:    make(map[*Client]bool),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
+		logger:     logger.New("wspool"),
 	}
 }
 

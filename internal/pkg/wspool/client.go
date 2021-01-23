@@ -50,7 +50,7 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 		Conn:         conn,
 		Received:     make(chan ClientRequest, 64),
 		Send:         make(chan *websocket.PreparedMessage, 64),
-		Closed:       make(chan struct{}, 1),
+		Closed:       make(chan struct{}, 4),
 		rateLimiter:  ratelimit.New(maxRPS),
 		InvalidCount: 0,
 	}
@@ -59,13 +59,14 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 // Read block-reads from the underlying websocket.Conn. It also parses skeleton for further unmarshalling
 func (c *Client) Read() {
 	defer func() {
+		close(c.Received)
 		c.Close()
 	}()
 
 	c.Conn.SetReadLimit(maxMessageSize)
 	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.Conn.SetPongHandler(func(appData string) error {
-		log.Traceln("got pong from client")
+		c.Hub.logger.Traceln("got pong from client")
 		c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 		return nil
 	})
@@ -90,12 +91,12 @@ func (c *Client) ack(messageType messages.MessageType) error {
 	m := messages.ServerACK{Type: messageType}
 	b, err := proto.Marshal(&m)
 	if err != nil {
-		log.Debugln("error occurred when marshalling ack message", err)
+		c.Hub.logger.Debugln("error occurred when marshalling ack message", err)
 		return err
 	}
 	p, err := websocket.NewPreparedMessage(websocket.BinaryMessage, b)
 	if err != nil {
-		log.Debugln("error occurred when preparing ack message", err)
+		c.Hub.logger.Debugln("error occurred when preparing ack message", err)
 		return err
 	}
 	c.Send <- p
@@ -106,22 +107,22 @@ func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 	typ, p, err := c.Conn.ReadMessage()
 	if err != nil {
 		if !websocket.IsCloseError(err, websocket.CloseGoingAway) {
-			log.Debugln("error occurred when reading message", err)
+			c.Hub.logger.Debugln("error occurred when reading message", err)
 		}
 		return &messages.Skeleton{}, nil, err
 	}
 	if typ != websocket.BinaryMessage && typ != websocket.PongMessage {
-		log.Debugln("unexpected message type that is not a BinaryMessage type", typ)
+		c.Hub.logger.Debugln("unexpected message type that is not a BinaryMessage type", typ)
 		return &messages.Skeleton{}, nil, errors.New("unexpected message type")
 	}
 
 	var skeleton messages.Skeleton
 	err = proto.Unmarshal(p, &skeleton)
 	if err != nil {
-		log.Error("message either is not having common header or can't be unmarshalled to Skeleton", err)
+		c.Hub.logger.Error("message either is not having common header or can't be unmarshalled to Skeleton", err)
 		return &messages.Skeleton{}, nil, err
 	}
-	log.Traceln("unmarshalled skeleton as", skeleton.String())
+	c.Hub.logger.Traceln("unmarshalled skeleton as", skeleton.String())
 
 	return &skeleton, p, nil
 }
@@ -133,7 +134,7 @@ func (c *Client) Close() {
 }
 
 func (c *Client) Write() {
-	log.Traceln("starting ping ticker with period of", pingPeriod)
+	c.Hub.logger.Traceln("starting ping ticker with period of", pingPeriod)
 	pingTicker := time.NewTicker(pingPeriod)
 	defer func() {
 		pingTicker.Stop()
@@ -141,28 +142,23 @@ func (c *Client) Write() {
 	}()
 	for {
 		select {
-		case message, ok := <-c.Send:
-			log.Traceln("tries to send ws data", message)
+		case message := <-c.Send:
+			c.Hub.logger.Traceln("tries to send ws data", message)
 			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if !ok {
-				// The Hub closed the channel.
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
 
 			err := c.Conn.WritePreparedMessage(message)
 			if err != nil {
-				log.Warnln("failed to Send message", err)
+				c.Hub.logger.Debugln("failed to send message", err)
 				c.InvalidCount++
 			}
-			log.Traceln("ws data sent")
+			c.Hub.logger.Traceln("ws data sent")
 		case <-pingTicker.C:
-			log.Traceln("time's up: sending ping to client")
+			c.Hub.logger.Traceln("time's up: sending ping to client")
 
 			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			err := c.Conn.WriteMessage(websocket.PingMessage, nil)
 			if err != nil {
-				//log.Debugln("failed to write ping to client. client probably already gone. disconnecting")
+				c.Hub.logger.Debugln("failed to write ping to client. client probably already gone. disconnecting")
 				return
 			}
 		}

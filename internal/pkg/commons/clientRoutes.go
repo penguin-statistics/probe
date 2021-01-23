@@ -15,7 +15,7 @@ func CleanClientRoute(route string) (string, error) {
 	}
 	// the route (or a path) shall be absolute and doesn't have the Host and Scheme set
 	if len(r.Path) > 128 || !strings.HasPrefix(r.Path, "/") {
-		return "", errors.New("malformed route")
+		return "(malformed)", errors.New("malformed route")
 	}
 	return r.Path, nil
 }

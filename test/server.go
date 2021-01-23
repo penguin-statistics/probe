@@ -23,7 +23,7 @@ func handleWsConn(ws *websocket.Conn, wg *sync.WaitGroup, ctr *uint64) {
 				Type:     messages.MessageType_NAVIGATED,
 				Language: messages.Language_ZH_CN,
 			},
-			Path: "/" + uniuri.NewLen(64),
+			Path: "/",
 		})
 
 		err := ws.WriteMessage(websocket.BinaryMessage, m)
