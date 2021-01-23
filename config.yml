@@ -3,5 +3,6 @@ http:
 
 app:
   dsn: "host=localhost user=root password=root dbname=penguinprobe port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+  allowAllOrigin: true
   debug: true
   pprof: true

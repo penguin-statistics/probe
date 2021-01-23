@@ -26,7 +26,7 @@ func IsValidDomain(u *url.URL) bool {
 }
 
 func GenOriginChecker() func(r *http.Request) bool {
-	if viper.GetBool("app.debug") {
+	if viper.GetBool("app.allowAllOrigin") {
 		return func(r *http.Request) bool {
 			return true
 		}
