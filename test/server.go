@@ -17,31 +17,25 @@ var endpoint = "ws://localhost:8100/"
 
 func handleWsConn(ws *websocket.Conn, wg *sync.WaitGroup, ctr *uint64) {
 	//t := time.Now()
-	for {
-		m, _ := proto.Marshal(&messages.Navigated{
-			Meta: &messages.Meta{
-				Type:     messages.MessageType_NAVIGATED,
-				Language: messages.Language_ZH_CN,
-			},
-			Path: "/",
-		})
+	m, _ := proto.Marshal(&messages.Navigated{
+		Meta: &messages.Meta{
+			Type:     messages.MessageType_NAVIGATED,
+			Language: messages.Language_ZH_CN,
+		},
+		Path: "/",
+	})
 
-		err := ws.WriteMessage(websocket.BinaryMessage, m)
-		if err != nil {
-			panic(err)
-		}
-		_, _, err = ws.ReadMessage()
-		if err != nil {
-			panic(err)
-		}
-		atomic.AddUint64(ctr, 1)
-		c := atomic.LoadUint64(ctr)
-		if c%5000 == 0 {
-			log.Printf("requests total: %v times", c)
-			break
-		}
-		time.Sleep(time.Millisecond * 10)
+	err := ws.WriteMessage(websocket.BinaryMessage, m)
+	if err != nil {
+		panic(err)
 	}
+	_, _, err = ws.ReadMessage()
+	if err != nil {
+		panic(err)
+	}
+	atomic.AddUint64(ctr, 1)
+	ws.Close()
+	time.Sleep(time.Millisecond * 10)
 	//ws.WriteMessage(websocket.CloseMessage, []byte{})
 	//log.Println(time.Now().Sub(t).Milliseconds())
 	//for {
@@ -59,7 +53,7 @@ func main() {
 	var current uint64 = 0
 	var ctr uint64 = 0
 	wg := &sync.WaitGroup{}
-	for i := 0; i < 12; i++ {
+	for i := 0; i < 1e4; i++ {
 		wg.Add(1)
 		go func() {
 			for {
@@ -82,6 +76,7 @@ func main() {
 					break
 				}
 			}
+			wg.Done()
 		}()
 	}
 	wg.Wait()
