@@ -135,10 +135,6 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 		return nil
 	}
 
-	defer func() {
-		log.Println("BYE FROM HTTP!!!")
-	}()
-
 	bc.hub.Register <- client
 	go client.Read()
 	go client.Write()
