@@ -2,16 +2,18 @@ package wspool
 
 import (
 	"errors"
+	"time"
+
 	"github.com/gorilla/websocket"
-	"github.com/penguin-statistics/probe/internal/pkg/messages"
 	"go.uber.org/ratelimit"
 	"google.golang.org/protobuf/proto"
-	"time"
+
+	"github.com/penguin-statistics/probe/internal/pkg/messages"
 )
 
 const (
 	// Time allowed to write a message to the peer.
-	writeWait = 30 * time.Second
+	writeWait = 5 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Minute
@@ -25,6 +27,8 @@ const (
 	// Maximum messages per second
 	maxRPS = 20
 )
+
+var ErrInvalidMessageType = errors.New("invalid message type")
 
 // ClientRequest is the skeleton-unmarshalled client side request
 type ClientRequest struct {
@@ -113,7 +117,7 @@ func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 	}
 	if typ != websocket.BinaryMessage && typ != websocket.PongMessage {
 		c.Hub.logger.Debugln("unexpected message type that is not a BinaryMessage type", typ)
-		return &messages.Skeleton{}, nil, errors.New("unexpected message type")
+		return &messages.Skeleton{}, nil, ErrInvalidMessageType
 	}
 
 	var skeleton messages.Skeleton
@@ -137,6 +141,7 @@ func (c *Client) Write() {
 	c.Hub.logger.Traceln("starting ping ticker with period of", pingPeriod)
 	pingTicker := time.NewTicker(pingPeriod)
 	defer func() {
+		c.Hub.logger.Traceln("stopping writer")
 		pingTicker.Stop()
 		c.Close()
 	}()
@@ -149,7 +154,7 @@ func (c *Client) Write() {
 			err := c.Conn.WritePreparedMessage(message)
 			if err != nil {
 				c.Hub.logger.Debugln("failed to send message", err)
-				c.InvalidCount++
+				return
 			}
 			c.Hub.logger.Traceln("ws data sent")
 		case <-pingTicker.C:

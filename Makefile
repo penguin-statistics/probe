@@ -1,9 +1,8 @@
 init:
-	go get -v ./...
-	go get github.com/cespare/reflex
+	go install github.com/mitranim/gow@latest
 
 dev:
-	reflex -d none -t 1s -s -R vendor. -r '\.(go|yml)$$' -- sh -c 'PENGUIN_PROBE_PPROF=1 go run ./cmd'
+	gow -c -e go,yml,mod run ./cmd
 
 protoc:
 	protoc -I=internal/pkg/messages/ --go_out=internal/pkg/messages/ internal/pkg/messages/*.proto
