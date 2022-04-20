@@ -2,6 +2,8 @@ package controller
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dchest/uniuri"
 	"github.com/gorilla/websocket"
@@ -13,7 +15,6 @@ import (
 	"github.com/penguin-statistics/probe/internal/pkg/messages"
 	"github.com/penguin-statistics/probe/internal/pkg/wspool"
 	"google.golang.org/protobuf/proto"
-	"net/http"
 )
 
 var (

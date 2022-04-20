@@ -7,11 +7,12 @@
 package messages
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	proto "github.com/golang/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -741,20 +742,23 @@ func file_shared_proto_rawDescGZIP() []byte {
 	return file_shared_proto_rawDescData
 }
 
-var file_shared_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_shared_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_shared_proto_goTypes = []interface{}{
-	(Language)(0),                 // 0: PenguinProbe.Language
-	(Server)(0),                   // 1: PenguinProbe.Server
-	(MessageType)(0),              // 2: PenguinProbe.MessageType
-	(*Meta)(nil),                  // 3: PenguinProbe.Meta
-	(*Skeleton)(nil),              // 4: PenguinProbe.Skeleton
-	(*EnteredSearchResult)(nil),   // 5: PenguinProbe.EnteredSearchResult
-	(*ExecutedAdvancedQuery)(nil), // 6: PenguinProbe.ExecutedAdvancedQuery
-	(*Navigated)(nil),             // 7: PenguinProbe.Navigated
-	(*ServerACK)(nil),             // 8: PenguinProbe.ServerACK
-	(*ExecutedAdvancedQuery_AdvancedQuery)(nil), // 9: PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
-}
+var (
+	file_shared_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+	file_shared_proto_msgTypes  = make([]protoimpl.MessageInfo, 7)
+	file_shared_proto_goTypes   = []interface{}{
+		(Language)(0),                 // 0: PenguinProbe.Language
+		(Server)(0),                   // 1: PenguinProbe.Server
+		(MessageType)(0),              // 2: PenguinProbe.MessageType
+		(*Meta)(nil),                  // 3: PenguinProbe.Meta
+		(*Skeleton)(nil),              // 4: PenguinProbe.Skeleton
+		(*EnteredSearchResult)(nil),   // 5: PenguinProbe.EnteredSearchResult
+		(*ExecutedAdvancedQuery)(nil), // 6: PenguinProbe.ExecutedAdvancedQuery
+		(*Navigated)(nil),             // 7: PenguinProbe.Navigated
+		(*ServerACK)(nil),             // 8: PenguinProbe.ServerACK
+		(*ExecutedAdvancedQuery_AdvancedQuery)(nil), // 9: PenguinProbe.ExecutedAdvancedQuery.AdvancedQuery
+	}
+)
+
 var file_shared_proto_depIdxs = []int32{
 	2, // 0: PenguinProbe.Meta.type:type_name -> PenguinProbe.MessageType
 	0, // 1: PenguinProbe.Meta.language:type_name -> PenguinProbe.Language

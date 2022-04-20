@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/penguin-statistics/probe/densemver"
 	"time"
+
+	"github.com/penguin-statistics/probe/densemver"
 )
 
 // Bonjour is a bonjour request in which the client initiates request with basic params

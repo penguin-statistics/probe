@@ -1,22 +1,23 @@
 package main
 
 import (
-	"github.com/dchest/uniuri"
-	"github.com/gorilla/websocket"
-	"github.com/penguin-statistics/probe/internal/pkg/messages"
-	"google.golang.org/protobuf/proto"
 	"log"
 	"net/http"
 	"net/url"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/dchest/uniuri"
+	"github.com/gorilla/websocket"
+	"github.com/penguin-statistics/probe/internal/pkg/messages"
+	"google.golang.org/protobuf/proto"
 )
 
 var endpoint = "ws://localhost:8100/"
 
 func handleWsConn(ws *websocket.Conn, wg *sync.WaitGroup, ctr *uint64) {
-	//t := time.Now()
+	// t := time.Now()
 	m, _ := proto.Marshal(&messages.Navigated{
 		Meta: &messages.Meta{
 			Type:     messages.MessageType_NAVIGATED,
