@@ -3,13 +3,14 @@ alt="Penguin Statistics - Logo"
 width="96px" />
 
 # Penguin Statistics - `probe`
-[![Status](https://img.shields.io/badge/status-development-red)](#readme)
+[![Status](https://img.shields.io/badge/status-production-green)](#readme)
 [![Language](https://img.shields.io/badge/using-Go-%2300add8?logo=go)](#readme)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/penguin-statistics/probe)](https://github.com/penguin-statistics/probe/blob/main/go.mod)
 [![GoDoc](https://pkg.go.dev/badge/github.com/penguin-statistics/probe)](https://pkg.go.dev/github.com/penguin-statistics/probe)
 [![Go Report Card](https://goreportcard.com/badge/github.com/penguin-statistics/probe)](https://goreportcard.com/report/github.com/penguin-statistics/probe)
 [![License](https://img.shields.io/github/license/penguin-statistics/probe)](https://github.com/penguin-statistics/probe/blob/main/LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/penguin-statistics/probe)](https://github.com/penguin-statistics/probe/commits/main)
+[![GitHub Actions Status](https://github.com/penguin-statistics/probe/actions/workflows/build.yml/badge.svg)](https://github.com/penguin-statistics/probe/actions/workflows/build.yml)
 
 This is the **probe** project repository for the [Penguin Statistics](https://penguin-stats.io/?utm_source=github) website.
 

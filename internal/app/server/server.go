@@ -2,16 +2,18 @@ package server
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/spf13/viper"
+
 	"github.com/penguin-statistics/probe/internal/app/controller"
 	"github.com/penguin-statistics/probe/internal/app/repository"
 	"github.com/penguin-statistics/probe/internal/app/service"
 	"github.com/penguin-statistics/probe/internal/pkg/commons"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/spf13/viper"
-	"net/http"
-	"time"
 )
 
 // Bootstrap starts the http server up
@@ -35,7 +37,7 @@ func Bootstrap() error {
 		Format: "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
 	}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		//AllowCredentials: true,
+		// AllowCredentials: true,
 		AllowMethods: []string{http.MethodGet},
 		AllowOrigins: commons.PenguinDomainsOrigin(),
 		MaxAge:       int((time.Hour * 24).Seconds()),
