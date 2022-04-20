@@ -1,18 +1,17 @@
 package commons
 
 import (
-	"github.com/elliotchance/pie/pie"
-	"github.com/jpillora/go-tld"
-	"github.com/spf13/viper"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/elliotchance/pie/pie"
+	"github.com/jpillora/go-tld"
+	"github.com/spf13/viper"
 )
 
-var (
-	// PenguinDomains are domains which Penguin Statistics hold
-	PenguinDomains = pie.Strings{"penguin-stats.io", "penguin-stats.cn", "penguin-stats.com", "exusi.ai"}
-)
+// PenguinDomains are domains which Penguin Statistics hold
+var PenguinDomains = pie.Strings{"penguin-stats.io", "penguin-stats.cn", "exusi.ai"}
 
 // IsValidDomain validates if a domain in url.URL provided is a Penguin Statistics official domain
 func IsValidDomain(u *url.URL) bool {
