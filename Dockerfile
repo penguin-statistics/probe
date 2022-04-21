@@ -26,7 +26,6 @@ RUN apk add --no-cache libc6-compat tini
 # Tini is now available at /sbin/tini
 
 COPY --from=gobuilder /app/probe /app/probe
-COPY --from=gobuilder /app/config.example.yml /app/config.yml
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD [ "/app/probe" ]

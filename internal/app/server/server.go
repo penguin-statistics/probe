@@ -18,14 +18,6 @@ import (
 
 // Bootstrap starts the http server up
 func Bootstrap() error {
-	viper.SetEnvPrefix("penguinprobe")
-	viper.AutomaticEnv()
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-
 	if viper.GetBool("app.debug") {
 		fmt.Println("debug enabled")
 	}

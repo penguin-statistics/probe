@@ -8,13 +8,14 @@ import (
 	"github.com/dchest/uniuri"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/penguin-statistics/probe/internal/app/model"
 	"github.com/penguin-statistics/probe/internal/app/service"
 	"github.com/penguin-statistics/probe/internal/pkg/commons"
 	"github.com/penguin-statistics/probe/internal/pkg/logger"
 	"github.com/penguin-statistics/probe/internal/pkg/messages"
 	"github.com/penguin-statistics/probe/internal/pkg/wspool"
-	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -53,8 +54,8 @@ func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
 		sProm:    sProm,
 		hub:      hub,
 		upgrader: &websocket.Upgrader{
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
+			ReadBufferSize:  128,
+			WriteBufferSize: 128,
 			CheckOrigin:     commons.GenOriginChecker(),
 			Error: func(w http.ResponseWriter, r *http.Request, status int, reason error) {
 			},

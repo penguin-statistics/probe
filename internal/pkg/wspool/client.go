@@ -25,7 +25,7 @@ const (
 	maxMessageSize = 512
 
 	// Maximum messages per second
-	maxRPS = 20
+	maxRPS = 3
 )
 
 var ErrInvalidMessageType = errors.New("invalid message type")

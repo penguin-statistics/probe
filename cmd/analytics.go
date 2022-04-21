@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
+	"strings"
+
+	"github.com/spf13/viper"
 
 	"github.com/penguin-statistics/probe/internal/app/server"
 )
 
 func Bootstrap() {
-	if os.Getenv("PENGUIN_PROBE_PPROF") == "1" {
+	viper.SetEnvPrefix("penguinprobe")
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	if viper.GetBool("app.pprof") {
 		go func() {
 			fmt.Println("pprof enabled")
 			http.ListenAndServe("localhost:8120", nil)
