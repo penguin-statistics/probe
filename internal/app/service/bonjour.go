@@ -35,7 +35,7 @@ func (s *Bonjour) Record(b *model.Bonjour) error {
 // Count counts current bonjour requests from db
 func (s *Bonjour) Count() (int64, error) {
 	var count int64
-	if err := s.repo.DB.Model(&model.Bonjour{}).Count(&count).Error; err != nil {
+	if err := s.repo.DB.Raw("select last_value from bonjours_id_seq").Row().Scan(&count); err != nil {
 		return -1, err
 	}
 	return count, nil
