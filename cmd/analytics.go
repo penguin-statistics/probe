@@ -6,6 +6,7 @@ import (
 	_ "net/http/pprof"
 	"strings"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/viper"
 
 	"github.com/penguin-statistics/probe/internal/app/server"

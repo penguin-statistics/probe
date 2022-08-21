@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dchest/uniuri"
@@ -42,7 +44,7 @@ func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
 		return float64(len(hub.Clients))
 	})
 	sProm.RegisterUsersFunc(func() float64 {
-		count, err := sBonjour.Count()
+		count, err := sBonjour.Count(context.Background())
 		if err != nil {
 			log.Errorln("failed to get users count", err)
 		}
@@ -65,17 +67,20 @@ func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
 }
 
 // LiveHandler handles probe reports
-func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
+func (bc *Bonjour) LiveHandler(c echo.Context) error {
 	req := new(model.Bonjour)
-	if err := ctx.Bind(req); err != nil {
+	if err := c.Bind(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	if err := ctx.Validate(req); err != nil {
+	if err := c.Validate(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	if req.Platform == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("platform: field is required"))
 	}
+
+	ctx, cancel := context.WithTimeout(c.Request().Context(), 10*time.Second)
+	defer cancel()
 
 	platform := req.Platform.Marshal()
 
@@ -92,12 +97,12 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 		req.UID = uniuri.NewLen(32)
 
 		// record bonjour request - see how many sessions are there
-		_ = bc.sBonjour.Record(req)
+		_ = bc.sBonjour.Record(ctx, req)
 
 		bc.sProm.IncUV(platform, path)
 		bc.sProm.IncPV(platform, path)
 
-		return ctx.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent)
 	}
 
 	// record reconnections
@@ -112,17 +117,17 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 		bc.sProm.IncPV(platform, path)
 
 		// record bonjour request - see how many sessions are there
-		err = bc.sBonjour.Record(req)
+		err = bc.sBonjour.Record(ctx, req)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 	}
 
 	// upgrade to websocket
-	ws, err := bc.upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
+	ws, err := bc.upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Debugln("failed to update http conn to ws conn", err)
-		ctx.Response().Header().Set(echo.HeaderUpgrade, "websocket")
+		c.Response().Header().Set(echo.HeaderUpgrade, "websocket")
 		return echo.NewHTTPError(http.StatusUpgradeRequired, err)
 	}
 

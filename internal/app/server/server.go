@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -26,7 +27,7 @@ func Bootstrap() error {
 	e.Debug = viper.GetBool("app.debug")
 	e.Validator = &Validator{}
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
+		// Format: "${time_rfc3339} | \u001B[97;34m${status} ${latency_human}\u001B[0m | \033[97;36m${method} ${uri}\033[0m\n",
 	}))
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		// AllowCredentials: true,
@@ -53,12 +54,14 @@ func Bootstrap() error {
 
 	e.GET("/", c.LiveHandler)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
-	e.GET("/health", func(ctx echo.Context) error {
-		if err := r.DB.Raw("SELECT 1").Scan(&struct{}{}).Error; err != nil {
-			return ctx.String(http.StatusInternalServerError, "database is not ready")
+	e.GET("/health", func(c echo.Context) error {
+		ctx, cancel := context.WithTimeout(c.Request().Context(), time.Second)
+		defer cancel()
+		if err := r.DB.PingContext(ctx); err != nil {
+			return c.String(http.StatusInternalServerError, "database is not ready")
 		}
 
-		return ctx.String(http.StatusOK, "ok")
+		return c.String(http.StatusOK, "ok")
 	})
 
 	return e.Start(viper.GetString("http.server"))

@@ -2,7 +2,7 @@ http:
   server: "localhost:8100"
 
 app:
-  dsn: "host=localhost user=root password=root dbname=penguinprobe port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+  dsn: "clickhouse://probe:probe@localhost:9000/probe"
   allowAllOrigin: true
   debug: true
   pprof: true
