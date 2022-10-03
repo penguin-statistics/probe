@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/penguin-statistics/probe/internal/app/model"
 	"github.com/penguin-statistics/probe/internal/app/repository"
 )
@@ -17,16 +15,28 @@ func NewBonjour(repo *repository.Probe) *Bonjour {
 	return &Bonjour{repo: repo}
 }
 
-func (s *Bonjour) UIDExists(ctx context.Context, uid string) bool {
-	return s.repo.CheckUIDExists(ctx, uid)
+func (s *Bonjour) UIDExists(uid string) bool {
+	var req model.Bonjour
+	err := s.repo.DB.First(&req, &model.Bonjour{UID: uid}).Error
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 // Record adds a bonjour request in model.Bonjour to db
-func (s *Bonjour) Record(ctx context.Context, b *model.Bonjour) error {
-	return s.repo.Insert(ctx, b)
+func (s *Bonjour) Record(b *model.Bonjour) error {
+	if err := s.repo.DB.Create(b).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 // Count counts current bonjour requests from db
-func (s *Bonjour) Count(ctx context.Context) (int64, error) {
-	return s.repo.Count(ctx)
+func (s *Bonjour) Count() (int64, error) {
+	var count int64
+	if err := s.repo.DB.Raw("select last_value from bonjours_id_seq").Row().Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
 }
