@@ -65,12 +65,12 @@ func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
 }
 
 // LiveHandler handles probe reports
-func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
+func (bc *Bonjour) LiveHandler(c echo.Context) error {
 	req := new(model.Bonjour)
-	if err := ctx.Bind(req); err != nil {
+	if err := c.Bind(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	if err := ctx.Validate(req); err != nil {
+	if err := c.Validate(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	if req.Platform == nil {
@@ -97,7 +97,7 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 		bc.sProm.IncUV(platform, path)
 		bc.sProm.IncPV(platform, path)
 
-		return ctx.NoContent(http.StatusNoContent)
+		return c.NoContent(http.StatusNoContent)
 	}
 
 	// record reconnections
@@ -119,10 +119,10 @@ func (bc *Bonjour) LiveHandler(ctx echo.Context) error {
 	}
 
 	// upgrade to websocket
-	ws, err := bc.upgrader.Upgrade(ctx.Response(), ctx.Request(), nil)
+	ws, err := bc.upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Debugln("failed to update http conn to ws conn", err)
-		ctx.Response().Header().Set(echo.HeaderUpgrade, "websocket")
+		c.Response().Header().Set(echo.HeaderUpgrade, "websocket")
 		return echo.NewHTTPError(http.StatusUpgradeRequired, err)
 	}
 
