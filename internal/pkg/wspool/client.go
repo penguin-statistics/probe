@@ -52,8 +52,8 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 	return &Client{
 		Hub:          hub,
 		Conn:         conn,
-		Received:     make(chan ClientRequest, 4),
-		Send:         make(chan *websocket.PreparedMessage, 4),
+		Received:     make(chan ClientRequest, 64),
+		Send:         make(chan *websocket.PreparedMessage, 64),
 		Closed:       make(chan struct{}, 4),
 		rateLimiter:  ratelimit.New(maxRPS),
 		InvalidCount: 0,

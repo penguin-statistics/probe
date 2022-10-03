@@ -49,8 +49,10 @@ func (p *Probe) Insert(ctx context.Context, b *model.Bonjour) error {
 
 func (p *Probe) Count(ctx context.Context) (int64, error) {
 	var count int64
-	// select bonjours_id_seq to determine the count of bonjours
+	err := p.DB.QueryRowContext(ctx, "SELECT count(1) FROM bonjours").Scan(&count)
+	if err != nil {
+		return -1, err
+	}
 
-	err := p.DB.QueryRowContext(ctx, "SELECT last_value FROM bonjours_id_seq").Scan(&count)
-	return count, err
+	return count, nil
 }
