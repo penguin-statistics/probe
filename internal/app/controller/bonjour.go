@@ -18,12 +18,7 @@ import (
 	"github.com/penguin-statistics/probe/internal/pkg/wspool"
 )
 
-var (
-	log = logger.New("controller")
-	// Maximum invalid messages a client may send
-	// if client sent invalid messages more than this count, their connection may be forcely closed
-	maxInvalidTolerance = 16
-)
+var log = logger.New("controller")
 
 // Bonjour is a bonjour service controller
 type Bonjour struct {
@@ -183,7 +178,6 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 			default:
 				log.Debugln("unknown message type", r.Skeleton.Meta.Type)
 				client.Send <- wspool.ErrInvalidWsMessage
-				break
 			}
 		}
 	}
