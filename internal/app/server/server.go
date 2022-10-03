@@ -53,13 +53,6 @@ func Bootstrap() error {
 
 	e.GET("/", c.LiveHandler)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
-	e.GET("/health", func(ctx echo.Context) error {
-		if err := r.DB.Raw("SELECT 1").Scan(&struct{}{}).Error; err != nil {
-			return ctx.String(http.StatusInternalServerError, "database is not ready")
-		}
-
-		return ctx.String(http.StatusOK, "ok")
-	})
 
 	return e.Start(viper.GetString("http.server"))
 }
