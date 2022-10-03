@@ -5,7 +5,6 @@ package wspool
 import (
 	"sync"
 
-	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 
 	"github.com/penguin-statistics/probe/internal/pkg/logger"
@@ -54,20 +53,14 @@ func (h *Hub) Evict() {
 	h.clientsmu.RLock()
 	defer h.clientsmu.RUnlock()
 
-	msg, err := websocket.NewPreparedMessage(websocket.CloseGoingAway, []byte("server shutting down"))
-	if err != nil {
-		h.logger.Errorln("failed to create prepared message", err)
-		return
-	}
-
 	var wg sync.WaitGroup
 	limiter := make(chan struct{}, 8)
 	for client := range h.Clients {
 		limiter <- struct{}{}
 		wg.Add(1)
 		go func(client *Client) {
-			client.Send <- msg
 			client.Close()
+			close(client.GoingAwayClose)
 			<-limiter
 		}(client)
 	}

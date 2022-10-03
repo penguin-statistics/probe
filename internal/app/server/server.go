@@ -91,7 +91,7 @@ func Bootstrap() error {
 				break
 			}
 			log.Infoln("waiting for", l, "clients to disconnect")
-			time.Sleep(time.Second)
+			time.Sleep(time.Minute)
 		}
 	}
 

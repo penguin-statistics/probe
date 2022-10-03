@@ -39,26 +39,28 @@ type ClientRequest struct {
 
 // Client is a intermediate module to connect user-side websocket client with hub
 type Client struct {
-	Hub         *Hub
-	Conn        *websocket.Conn
-	Received    chan ClientRequest
-	Send        chan *websocket.PreparedMessage
-	Closed      chan struct{}
-	rateLimiter ratelimit.Limiter
-	closeonce   sync.Once
+	Hub            *Hub
+	Conn           *websocket.Conn
+	Received       chan ClientRequest
+	Send           chan *websocket.PreparedMessage
+	Closed         chan struct{}
+	GoingAwayClose chan struct{}
+	rateLimiter    ratelimit.Limiter
+	closeonce      sync.Once
 
 	InvalidCount int
 }
 
 func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 	return &Client{
-		Hub:          hub,
-		Conn:         conn,
-		Received:     make(chan ClientRequest, 8),
-		Send:         make(chan *websocket.PreparedMessage, 8),
-		Closed:       make(chan struct{}, 1),
-		rateLimiter:  ratelimit.New(maxRPS),
-		InvalidCount: 0,
+		Hub:            hub,
+		Conn:           conn,
+		Received:       make(chan ClientRequest, 8),
+		Send:           make(chan *websocket.PreparedMessage, 8),
+		Closed:         make(chan struct{}),
+		GoingAwayClose: make(chan struct{}),
+		rateLimiter:    ratelimit.New(maxRPS),
+		InvalidCount:   0,
 	}
 }
 
@@ -136,7 +138,7 @@ func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 func (c *Client) Close() {
 	c.closeonce.Do(func() {
 		c.Hub.Unregister <- c
-		c.Closed <- struct{}{}
+		close(c.Closed)
 		c.Conn.Close()
 	})
 }
@@ -170,6 +172,10 @@ func (c *Client) Write() {
 				c.Hub.logger.Debugln("failed to write ping to client. client probably already gone. disconnecting")
 				return
 			}
+		case <-c.GoingAwayClose:
+			c.Hub.logger.Traceln("server is going away. sending close message to client")
+			c.Conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseGoingAway, "server is going away"), time.Now().Add(writeWait))
+			return
 		}
 	}
 }

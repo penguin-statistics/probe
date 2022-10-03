@@ -37,6 +37,7 @@ require (
 	github.com/jackc/pgx/v4 v4.10.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.1 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect

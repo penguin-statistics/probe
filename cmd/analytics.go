@@ -6,6 +6,7 @@ import (
 	_ "net/http/pprof"
 	"strings"
 
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/viper"
 
 	"github.com/penguin-statistics/probe/internal/app/server"
@@ -14,14 +15,18 @@ import (
 func Bootstrap() {
 	viper.SetEnvPrefix("penguinprobe")
 	viper.AutomaticEnv()
+	viper.AddConfigPath(".")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	if viper.GetBool("app.pprof") {
 		go func() {
-			fmt.Println("pprof enabled")
+			fmt.Println("pprof enabled on localhost:8120")
 			http.ListenAndServe("localhost:8120", nil)
 		}()
 	}
 
-	panic(server.Bootstrap())
+	err := server.Bootstrap()
+	if err != nil {
+		panic(err)
+	}
 }
