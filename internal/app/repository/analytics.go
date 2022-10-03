@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"github.com/penguin-statistics/probe/internal/app/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/penguin-statistics/probe/internal/app/model"
 )
 
 // Probe describes a repository which holds probe requests
@@ -17,6 +18,14 @@ func NewProbe(dsn string) *Probe {
 	if err != nil {
 		panic(err)
 	}
+
+	d, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+	d.SetMaxIdleConns(1)
+	d.SetMaxOpenConns(2)
+
 	err = db.AutoMigrate(&model.Bonjour{})
 	if err != nil {
 		panic(err)
