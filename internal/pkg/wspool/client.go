@@ -2,6 +2,7 @@ package wspool
 
 import (
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -44,6 +45,7 @@ type Client struct {
 	Send        chan *websocket.PreparedMessage
 	Closed      chan struct{}
 	rateLimiter ratelimit.Limiter
+	closeonce   sync.Once
 
 	InvalidCount int
 }
@@ -54,7 +56,7 @@ func NewClient(hub *Hub, conn *websocket.Conn) *Client {
 		Conn:         conn,
 		Received:     make(chan ClientRequest, 8),
 		Send:         make(chan *websocket.PreparedMessage, 8),
-		Closed:       make(chan struct{}, 4),
+		Closed:       make(chan struct{}, 1),
 		rateLimiter:  ratelimit.New(maxRPS),
 		InvalidCount: 0,
 	}
@@ -132,9 +134,11 @@ func (c *Client) readSkeleton() (s *messages.Skeleton, p []byte, err error) {
 }
 
 func (c *Client) Close() {
-	c.Hub.Unregister <- c
-	c.Closed <- struct{}{}
-	c.Conn.Close()
+	c.closeonce.Do(func() {
+		c.Hub.Unregister <- c
+		c.Closed <- struct{}{}
+		c.Conn.Close()
+	})
 }
 
 func (c *Client) Write() {

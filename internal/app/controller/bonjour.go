@@ -29,8 +29,7 @@ type Bonjour struct {
 }
 
 // NewBonjour creates a Bonjour controller with service
-func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus) *Bonjour {
-	hub := wspool.NewHub()
+func NewBonjour(sBonjour *service.Bonjour, sProm *service.Prometheus, hub *wspool.Hub) *Bonjour {
 	go hub.Run()
 
 	sProm.RegisterLiveUserFunc(func() float64 {

@@ -1,8 +1,11 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -14,7 +17,11 @@ import (
 	"github.com/penguin-statistics/probe/internal/app/repository"
 	"github.com/penguin-statistics/probe/internal/app/service"
 	"github.com/penguin-statistics/probe/internal/pkg/commons"
+	"github.com/penguin-statistics/probe/internal/pkg/logger"
+	"github.com/penguin-statistics/probe/internal/pkg/wspool"
 )
+
+var log = logger.New("cmd")
 
 // Bootstrap starts the http server up
 func Bootstrap() error {
@@ -42,9 +49,13 @@ func Bootstrap() error {
 	}
 
 	r := repository.NewProbe(viper.GetString("app.dsn"))
+	hub := wspool.NewHub()
 	sBonjour := service.NewBonjour(r)
 	sProm := service.NewPrometheus()
-	c := controller.NewBonjour(sBonjour, sProm)
+	c := controller.NewBonjour(sBonjour, sProm, hub)
+	e.Server.RegisterOnShutdown(func() {
+		go hub.Evict()
+	})
 
 	if viper.GetBool("app.debug") {
 		e.File("/web", "web/index.html")
@@ -54,5 +65,35 @@ func Bootstrap() error {
 	e.GET("/", c.LiveHandler)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 
-	return e.Start(viper.GetString("http.server"))
+	// Start server
+	go func() {
+		if err := e.Start(viper.GetString("http.server")); err != nil && err != http.ErrServerClosed {
+			log.Infoln("server shutdown", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 24*time.Hour)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		log.Infoln("received non-nil err from Shutdown()", err)
+	}
+
+	if len(hub.Clients) > 0 {
+		log.Infoln("waiting for clients to disconnect")
+		for {
+			l := len(hub.Clients)
+			if l == 0 {
+				break
+			}
+			log.Infoln("waiting for", l, "clients to disconnect")
+			time.Sleep(time.Second)
+		}
+	}
+
+	return nil
 }

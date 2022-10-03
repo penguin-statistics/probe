@@ -3,25 +3,31 @@
 package wspool
 
 import (
-	"github.com/penguin-statistics/probe/internal/pkg/logger"
+	"sync"
+
+	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
+
+	"github.com/penguin-statistics/probe/internal/pkg/logger"
 )
 
 // Hub consists of current active clients
 type Hub struct {
-	Clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client
 	logger     *logrus.Entry
+
+	clientsmu sync.RWMutex
+	Clients   map[*Client]struct{}
 }
 
 // NewHub creates a new Hub
 func NewHub() *Hub {
 	return &Hub{
-		Clients:    make(map[*Client]bool),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 		logger:     logger.New("wspool"),
+		Clients:    make(map[*Client]struct{}),
 	}
 }
 
@@ -31,11 +37,39 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case client := <-h.Register:
-			h.Clients[client] = true
+			h.clientsmu.Lock()
+			h.Clients[client] = struct{}{}
+			h.clientsmu.Unlock()
 		case client := <-h.Unregister:
+			h.clientsmu.Lock()
 			if _, ok := h.Clients[client]; ok {
 				delete(h.Clients, client)
 			}
+			h.clientsmu.Unlock()
 		}
 	}
+}
+
+func (h *Hub) Evict() {
+	h.clientsmu.RLock()
+	defer h.clientsmu.RUnlock()
+
+	msg, err := websocket.NewPreparedMessage(websocket.CloseGoingAway, []byte("server shutting down"))
+	if err != nil {
+		h.logger.Errorln("failed to create prepared message", err)
+		return
+	}
+
+	var wg sync.WaitGroup
+	limiter := make(chan struct{}, 8)
+	for client := range h.Clients {
+		limiter <- struct{}{}
+		wg.Add(1)
+		go func(client *Client) {
+			client.Send <- msg
+			client.Close()
+			<-limiter
+		}(client)
+	}
+	wg.Wait()
 }
