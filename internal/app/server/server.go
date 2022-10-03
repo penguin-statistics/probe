@@ -64,6 +64,16 @@ func Bootstrap() error {
 
 	e.GET("/", c.LiveHandler)
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+	e.GET("/ping", func(c echo.Context) error {
+		return c.String(http.StatusOK, "OK")
+	})
+	e.GET("/health", func(c echo.Context) error {
+		if err := r.DB.Exec("SELECT 1").Error; err != nil {
+			return c.String(http.StatusInternalServerError, "DB error")
+		}
+
+		return c.String(http.StatusOK, "OK")
+	})
 
 	// Start server
 	go func() {
