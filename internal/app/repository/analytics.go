@@ -24,7 +24,7 @@ func NewProbe(dsn string) *Probe {
 		panic(err)
 	}
 	d.SetMaxIdleConns(1)
-	d.SetMaxOpenConns(2)
+	d.SetMaxOpenConns(1)
 
 	err = db.AutoMigrate(&model.Bonjour{})
 	if err != nil {
