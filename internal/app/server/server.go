@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -27,6 +28,7 @@ var log = logger.New("cmd")
 func Bootstrap() error {
 	if viper.GetBool("app.debug") {
 		fmt.Println("debug enabled")
+		viper.Debug()
 	}
 
 	e := echo.New()
@@ -45,10 +47,13 @@ func Bootstrap() error {
 		if c.Response().Committed {
 			return
 		}
+		if viper.GetBool("app.debug") {
+			spew.Dump(err)
+		}
 		e.DefaultHTTPErrorHandler(err, c)
 	}
 
-	r := repository.NewProbe(viper.GetString("app.dsn"))
+	r := repository.NewProbe()
 	hub := wspool.NewHub()
 	sBonjour := service.NewBonjour(r)
 	sProm := service.NewPrometheus()
@@ -68,7 +73,7 @@ func Bootstrap() error {
 		return c.String(http.StatusOK, "OK")
 	})
 	e.GET("/health", func(c echo.Context) error {
-		if err := r.DB.Exec("SELECT 1").Error; err != nil {
+		if err := r.DB.Exec(context.Background(), "SELECT 1").Error; err != nil {
 			return c.String(http.StatusInternalServerError, "DB error")
 		}
 
@@ -82,7 +87,7 @@ func Bootstrap() error {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 24 hours.
 	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)

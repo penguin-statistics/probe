@@ -23,12 +23,12 @@ func NewPrometheus() *Prometheus {
 			Namespace: PromNamespace,
 			Name:      "page_view_total",
 			Help:      "Page views partitioned by platform and path",
-		}, []string{"platform", "path"}),
+		}, []string{"platform"}),
 		uv: promauto.NewCounterVec(prometheus.CounterOpts{
 			Namespace: PromNamespace,
 			Name:      "unique_view_total",
 			Help:      "Unique views partitioned by platform and path, where path is the first page visited",
-		}, []string{"platform", "path"}),
+		}, []string{"platform"}),
 		reconn: promauto.NewHistogramVec(prometheus.HistogramOpts{
 			Namespace: PromNamespace,
 			Name:      "reconnection_histogram",
@@ -38,12 +38,12 @@ func NewPrometheus() *Prometheus {
 	}
 }
 
-func (p *Prometheus) IncUV(platform, path string) {
-	p.uv.WithLabelValues(platform, path).Inc()
+func (p *Prometheus) IncUV(platform string) {
+	p.uv.WithLabelValues(platform).Inc()
 }
 
-func (p *Prometheus) IncPV(platform, path string) {
-	p.pv.WithLabelValues(platform, path).Inc()
+func (p *Prometheus) IncPV(platform string) {
+	p.pv.WithLabelValues(platform).Inc()
 }
 
 func (p *Prometheus) RecordReconnection(platform string, reconnects int) {

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/penguin-statistics/probe/internal/app/model"
 	"github.com/penguin-statistics/probe/internal/app/repository"
 )
@@ -15,27 +17,25 @@ func NewBonjour(repo *repository.Probe) *Bonjour {
 	return &Bonjour{repo: repo}
 }
 
-func (s *Bonjour) UIDExists(uid string) bool {
-	var req model.Bonjour
-	err := s.repo.DB.First(&req, &model.Bonjour{UID: uid}).Error
-	if err != nil {
-		return false
-	}
-	return true
+// RecordBonjour adds a bonjour request in model.Bonjour to db
+func (s *Bonjour) RecordBonjour(b *model.Bonjour) error {
+	return s.repo.DB.Exec(context.Background(), "insert into bonjours (id, version, platform, uid, legacy) values (?, ?, ?, ?, ?)", b.ID, b.Version, b.Platform, b.UID, b.Legacy)
 }
 
-// Record adds a bonjour request in model.Bonjour to db
-func (s *Bonjour) Record(b *model.Bonjour) error {
-	if err := s.repo.DB.Create(b).Error; err != nil {
-		return err
-	}
-	return nil
+// RecordImpression adds a view request in model.Bonjour to db
+func (s *Bonjour) RecordImpression(b *model.Impression) error {
+	return s.repo.DB.Exec(context.Background(), "insert into impressions (id, bonjour_id, path) values (?, ?, ?)", b.ID, b.BonjourID, b.Path)
+}
+
+// RecordEventSearchResultEntered adds a search result entered event in model.EventSearchResultEntered to db
+func (s *Bonjour) RecordEventSearchResultEntered(b *model.EventSearchResultEntered) error {
+	return s.repo.DB.Exec(context.Background(), "insert into event_search_result_entered (id, bonjour_id, query, result_position, destination) values (?, ?, ?, ?, ?)", b.ID, b.BonjourID, b.Query, b.ResultPosition, b.Destination)
 }
 
 // Count counts current bonjour requests from db
 func (s *Bonjour) Count() (int64, error) {
 	var count int64
-	if err := s.repo.DB.Raw("select last_value from bonjours_id_seq").Row().Scan(&count); err != nil {
+	if err := s.repo.DB.QueryRow(context.Background(), "select count(*) from bonjours").Scan(&count); err != nil {
 		return -1, err
 	}
 	return count, nil
