@@ -8,6 +8,7 @@ import (
 	"github.com/dchest/uniuri"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
+	"github.com/oklog/ulid/v2"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/penguin-statistics/probe/internal/app/model"
@@ -71,6 +72,8 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("platform: field is required"))
 	}
 
+	req.ID = ulid.Make().String()
+
 	platform := req.Platform.Marshal()
 
 	// get referer path from bonjour request
@@ -80,16 +83,22 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 		path = "(unspecified)"
 	}
 
+	impression := &model.Impression{
+		ID:        ulid.Make().String(),
+		BonjourID: req.ID,
+		Path:      path,
+	}
+
 	// if a legacy client, we only record basic request info and return ok
 	if req.Legacy != 0 {
 		// generate a uid for them
 		req.UID = uniuri.NewLen(32)
 
 		// record bonjour request - see how many sessions are there
-		_ = bc.sBonjour.Record(req)
+		_ = bc.sBonjour.RecordBonjour(req)
 
-		bc.sProm.IncUV(platform, path)
-		bc.sProm.IncPV(platform, path)
+		bc.sProm.IncUV(platform)
+		bc.sProm.IncPV(platform)
 
 		return c.NoContent(http.StatusNoContent)
 	}
@@ -100,15 +109,20 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 	// record initial visit records only if this is NOT a reconnecting request
 	if req.Reconnects == 0 {
 		// increment the uv since this is a probe request that would initiate on and only on reconnect==0
-		bc.sProm.IncUV(platform, path)
+		bc.sProm.IncUV(platform)
 
 		// record initial page view that comes with initial probe request
-		bc.sProm.IncPV(platform, path)
+		bc.sProm.IncPV(platform)
 
 		// record bonjour request - see how many sessions are there
-		err = bc.sBonjour.Record(req)
+		err = bc.sBonjour.RecordBonjour(req)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, err)
+			return err
+		}
+
+		err = bc.sBonjour.RecordImpression(impression)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -117,7 +131,7 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 	if err != nil {
 		log.Debugln("failed to update http conn to ws conn", err)
 		c.Response().Header().Set(echo.HeaderUpgrade, "websocket")
-		return echo.NewHTTPError(http.StatusUpgradeRequired, err)
+		return echo.NewHTTPError(http.StatusUpgradeRequired, "failed to upgrade to websocket")
 	}
 
 	client := wspool.NewClient(bc.hub, ws)
@@ -151,12 +165,20 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 				if err != nil {
 					break
 				}
-				s, err := commons.CleanClientRoute(body.Path)
-				err = must(err)
-				if err != nil {
+				path, err := commons.CleanClientRoute(body.Path)
+				if must(err) != nil {
 					break
 				}
-				bc.sProm.IncPV(platform, s)
+				bc.sProm.IncPV(platform)
+				impression := &model.Impression{
+					ID:        ulid.Make().String(),
+					BonjourID: req.ID,
+					Path:      path,
+				}
+				err = bc.sBonjour.RecordImpression(impression)
+				if err != nil {
+					log.Warnln("failed to record impression:", err)
+				}
 
 			case messages.MessageType_ENTERED_SEARCH_RESULT:
 				var body messages.EnteredSearchResult
@@ -164,7 +186,26 @@ func (bc *Bonjour) LiveHandler(c echo.Context) error {
 				if err != nil {
 					break
 				}
-				log.Infoln("Client Report: entered search result: query", body.Query, "(stageId", body.GetStageId(), "itemId", body.GetItemId(), ") at position", body.Position)
+
+				destination := ""
+				if body.GetStageId() != "" {
+					destination = "stage:" + body.GetStageId()
+				} else if body.GetItemId() != "" {
+					destination = "item:" + body.GetItemId()
+				} else {
+					destination = "unknown"
+				}
+
+				err = bc.sBonjour.RecordEventSearchResultEntered(&model.EventSearchResultEntered{
+					ID:             ulid.Make().String(),
+					BonjourID:      req.ID,
+					Query:          body.Query,
+					Destination:    destination,
+					ResultPosition: body.GetPosition(),
+				})
+				if err != nil {
+					log.Warnln("failed to record impression:", err)
+				}
 
 			case messages.MessageType_EXECUTED_ADVANCED_QUERY:
 				var body messages.ExecutedAdvancedQuery

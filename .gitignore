@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/go,webstorm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,webstorm+all
 
@@ -116,3 +115,4 @@ modules.xml
 
 config.yml
 .env
+__debug_bin

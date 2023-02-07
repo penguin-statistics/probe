@@ -1,32 +1,44 @@
 package repository
 
 import (
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"context"
+	"time"
 
-	"github.com/penguin-statistics/probe/internal/app/model"
+	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/spf13/viper"
 )
 
 // Probe describes a repository which holds probe requests
 type Probe struct {
-	DB *gorm.DB
+	DB driver.Conn
 }
 
 // NewProbe returns a repository with probe requests
-func NewProbe(dsn string) *Probe {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func NewProbe() *Probe {
+	db, err := clickhouse.Open(&clickhouse.Options{
+		Addr: viper.GetStringSlice("clickhouse.addr"),
+		Auth: clickhouse.Auth{
+			Database: viper.GetString("clickhouse.database"),
+			Username: viper.GetString("clickhouse.user"),
+			Password: viper.GetString("clickhouse.password"),
+		},
+		Debug:       viper.GetBool("app.debug"),
+		DialTimeout: time.Second * 20,
+		ClientInfo: clickhouse.ClientInfo{
+			Products: []struct {
+				Name    string
+				Version string
+			}{
+				{Name: "penguin-statistics/probe", Version: "0.1.0"},
+			},
+		},
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	d, err := db.DB()
-	if err != nil {
-		panic(err)
-	}
-	d.SetMaxIdleConns(1)
-	d.SetMaxOpenConns(1)
-
-	err = db.AutoMigrate(&model.Bonjour{})
+	err = db.Ping(context.Background())
 	if err != nil {
 		panic(err)
 	}
