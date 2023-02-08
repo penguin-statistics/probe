@@ -11,7 +11,7 @@ require (
 	github.com/elliotchance/pie v1.38.0
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/jpillora/go-tld v1.1.1
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/oklog/ulid/v2 v2.1.0
