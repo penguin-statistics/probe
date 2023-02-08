@@ -33,10 +33,10 @@ func (s *Bonjour) RecordEventSearchResultEntered(b *model.EventSearchResultEnter
 }
 
 // Count counts current bonjour requests from db
-func (s *Bonjour) Count() (int64, error) {
-	var count int64
+func (s *Bonjour) Count() (uint64, error) {
+	var count uint64
 	if err := s.repo.DB.QueryRow(context.Background(), "select count(*) from bonjours").Scan(&count); err != nil {
-		return -1, err
+		return 0, err
 	}
 	return count, nil
 }
