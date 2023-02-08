@@ -1,0 +1,24 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:base",
+        "schedule:daily"
+    ],
+    "baseBranches": [
+        "main"
+    ],
+    "prConcurrentLimit": 5,
+    "ignoreDeps": [
+        "golang.org/x/exp"
+    ],
+    "packageRules": [
+        {
+            "matchPackagePatterns": [
+                "github.com/gofiber/contrib/.*"
+            ],
+            "automerge": true
+        }
+    ],
+    "automerge": true,
+    "platformAutomerge": true
+}

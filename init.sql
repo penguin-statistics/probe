@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS probe;
+
 CREATE TABLE probe.bonjours
 (
     `id` FixedString(26),
