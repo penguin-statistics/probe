@@ -73,7 +73,7 @@ func Bootstrap() error {
 		return c.String(http.StatusOK, "OK")
 	})
 	e.GET("/health", func(c echo.Context) error {
-		if err := r.DB.Exec(context.Background(), "SELECT 1").Error; err != nil {
+		if err := r.DB.Exec(context.Background(), "SELECT 1"); err != nil {
 			return c.String(http.StatusInternalServerError, "DB error")
 		}
 
