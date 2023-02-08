@@ -22,8 +22,7 @@ CREATE TABLE probe.impressions
 )
 ENGINE = MergeTree
 PRIMARY KEY id
-ORDER BY id
-SETTINGS index_granularity = 8192;
+ORDER BY id;
 
 
 CREATE TABLE probe.event_search_result_entered
@@ -37,5 +36,4 @@ CREATE TABLE probe.event_search_result_entered
 )
 ENGINE = MergeTree
 PRIMARY KEY id
-ORDER BY id
-SETTINGS index_granularity = 8192;
+ORDER BY id;
