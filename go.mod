@@ -10,7 +10,7 @@ require (
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/elliotchance/pie v1.39.0
 	github.com/golang/protobuf v1.5.2
-	github.com/gorilla/websocket v1.4.2
+	github.com/gorilla/websocket v1.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/jpillora/go-tld v1.1.1
 	github.com/labstack/echo/v4 v4.10.0
