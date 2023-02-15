@@ -15,7 +15,7 @@ require (
 	github.com/jpillora/go-tld v1.1.1
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/oklog/ulid/v2 v2.1.0
-	github.com/prometheus/client_golang v1.9.0
+	github.com/prometheus/client_golang v1.11.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.7.1
 	go.uber.org/ratelimit v0.1.0
@@ -45,8 +45,8 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.15.0 // indirect
-	github.com/prometheus/procfs v0.2.0 // indirect
+	github.com/prometheus/common v0.26.0 // indirect
+	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/afero v1.1.2 // indirect
