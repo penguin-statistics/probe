@@ -12,7 +12,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.5.0
 	github.com/joho/godotenv v1.5.1
-	github.com/jpillora/go-tld v1.1.1
+	github.com/jpillora/go-tld v1.2.1
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/prometheus/client_golang v1.11.1
