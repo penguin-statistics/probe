@@ -16,7 +16,7 @@ require (
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/prometheus/client_golang v1.14.0
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.7.1
 	go.uber.org/ratelimit v0.1.0
 	google.golang.org/protobuf v1.28.1
