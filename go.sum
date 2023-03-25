@@ -142,6 +142,7 @@ github.com/elliotchance/pie v1.39.0 h1:oudoOFLPYvWwsJ/J2dFv3uHkdHdq7oSv8aNMWqUQV
 github.com/elliotchance/pie v1.39.0/go.mod h1:W/nLuTGZ1dLKzRS0Z2g2N2evWzMenuDnBhk0s6Y9k54=
 github.com/elliotchance/pie/v2 v2.4.0/go.mod h1:18t0dgGFH006g4eVdDtWfgFZPQEgl10IoEO8YWEq3Og=
 github.com/elliotchance/pie/v2 v2.5.1/go.mod h1:18t0dgGFH006g4eVdDtWfgFZPQEgl10IoEO8YWEq3Og=
+github.com/elliotchance/pie/v2 v2.5.2/go.mod h1:18t0dgGFH006g4eVdDtWfgFZPQEgl10IoEO8YWEq3Og=
 github.com/elliotchance/testify-stats v1.0.0 h1:CMcRBfQIB0WwT1+aY38MM4ShFqhPyP6jkHRytSvXLzI=
 github.com/elliotchance/testify-stats v1.0.0/go.mod h1:Mc25k7L4E65uf6CfW+s/pY04XcoiqQBrfIRsWQcgweA=
 github.com/envoyproxy/go-control-plane v0.6.9/go.mod h1:SBwIajubJHhxtWwsL9s8ss4safvEdbitLhGGK48rN6g=
