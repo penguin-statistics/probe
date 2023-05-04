@@ -16,7 +16,7 @@ require (
 	github.com/jpillora/go-tld v1.2.1
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/oklog/ulid/v2 v2.1.0
-	github.com/prometheus/client_golang v1.15.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.15.0
 	go.uber.org/ratelimit v0.2.0
