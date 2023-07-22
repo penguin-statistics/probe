@@ -3,7 +3,7 @@ module github.com/penguin-statistics/probe
 go 1.18
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.10.1
+	github.com/ClickHouse/clickhouse-go/v2 v2.11.0
 	github.com/Masterminds/semver v1.5.0
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/davecgh/go-spew v1.1.1
@@ -60,8 +60,8 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	go.opentelemetry.io/otel v1.13.0 // indirect
-	go.opentelemetry.io/otel/trace v1.13.0 // indirect
+	go.opentelemetry.io/otel v1.16.0 // indirect
+	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
