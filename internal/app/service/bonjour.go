@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/penguin-statistics/probe/internal/app/model"
 	"github.com/penguin-statistics/probe/internal/app/repository"
@@ -19,7 +20,7 @@ func NewBonjour(repo *repository.Probe) *Bonjour {
 
 // RecordBonjour adds a bonjour request in model.Bonjour to db
 func (s *Bonjour) RecordBonjour(b *model.Bonjour) error {
-	return s.repo.DB.Exec(context.Background(), "insert into bonjours (id, version, platform, uid, legacy) values (?, ?, ?, ?, ?)", b.ID, b.Version, b.Platform, b.UID, b.Legacy)
+	return s.repo.DB.Exec(context.Background(), "insert into bonjours (id, created_at, version, platform, uid, legacy) values (?, ?, ?, ?, ?)", b.ID, time.Now().Format("2006-01-02 15:04:05"), b.Version, b.Platform, b.UID, b.Legacy)
 }
 
 // RecordImpression adds a view request in model.Bonjour to db
