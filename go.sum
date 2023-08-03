@@ -80,6 +80,8 @@ github.com/ClickHouse/clickhouse-go/v2 v2.11.0 h1:X3VIkldXb7zzBgqiha5JKsDNFkkGcd
 github.com/ClickHouse/clickhouse-go/v2 v2.11.0/go.mod h1:W/UQ/GchOF+Q0k5iv6ZanLKQNukA4Oiyt4sMFDsv8QY=
 github.com/ClickHouse/clickhouse-go/v2 v2.12.0 h1:k0Q0qiuwGeGZC7/6Ff9J3C9Od+rzy9FXgGOcAfIxrF0=
 github.com/ClickHouse/clickhouse-go/v2 v2.12.0/go.mod h1:W/UQ/GchOF+Q0k5iv6ZanLKQNukA4Oiyt4sMFDsv8QY=
+github.com/ClickHouse/clickhouse-go/v2 v2.12.1 h1:KzNUk4oLL3vo+EOSel+QmonF5GViG4B6/hVkTd9iZx8=
+github.com/ClickHouse/clickhouse-go/v2 v2.12.1/go.mod h1:W/UQ/GchOF+Q0k5iv6ZanLKQNukA4Oiyt4sMFDsv8QY=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
