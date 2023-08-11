@@ -3,7 +3,7 @@ module github.com/penguin-statistics/probe
 go 1.18
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.12.1
+	github.com/ClickHouse/clickhouse-go/v2 v2.13.0
 	github.com/Masterminds/semver v1.5.0
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/davecgh/go-spew v1.1.1
@@ -43,7 +43,7 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/paulmach/orb v0.9.0 // indirect
+	github.com/paulmach/orb v0.10.0 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
