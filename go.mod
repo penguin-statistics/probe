@@ -3,7 +3,7 @@ module github.com/penguin-statistics/probe
 go 1.18
 
 require (
-	github.com/ClickHouse/clickhouse-go/v2 v2.13.1
+	github.com/ClickHouse/clickhouse-go/v2 v2.13.2
 	github.com/Masterminds/semver v1.5.0
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/davecgh/go-spew v1.1.1
@@ -24,7 +24,7 @@ require (
 )
 
 require (
-	github.com/ClickHouse/ch-go v0.58.1 // indirect
+	github.com/ClickHouse/ch-go v0.58.2 // indirect
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
