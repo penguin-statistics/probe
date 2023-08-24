@@ -92,6 +92,8 @@ github.com/ClickHouse/clickhouse-go/v2 v2.13.1 h1:KdPZqyugG65MxQ8ZsSIP2gCNiAGiAv
 github.com/ClickHouse/clickhouse-go/v2 v2.13.1/go.mod h1:eD4eFiHTXiyYYJVev5Ud3pJjTKuLtca65vc+rAILwhc=
 github.com/ClickHouse/clickhouse-go/v2 v2.13.2 h1:LSg6670+xbd5VczO5Ei3DHZBIeGulfwhNuHCUth/qOA=
 github.com/ClickHouse/clickhouse-go/v2 v2.13.2/go.mod h1:4QITCrdY/ugPYA+QGnJ92h+v7TGaZQ7l0393Q/wlM3Q=
+github.com/ClickHouse/clickhouse-go/v2 v2.13.3 h1:/esk41SjVLIDQs2rkOmRKXJ1FIFArIJiX6sYG0DUavE=
+github.com/ClickHouse/clickhouse-go/v2 v2.13.3/go.mod h1:yoCB//XLqbyqaYvXzdbIdmMafOSomU3erh3r06NLCZU=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
@@ -291,6 +293,8 @@ github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/google/uuid v1.3.1 h1:KjJaJ9iWZ3jOFZIf1Lqf4laDRCasjl0BCmnEGxkdLb4=
+github.com/google/uuid v1.3.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/googleapis/google-cloud-go-testing v0.0.0-20200911160855-bcd43fbb19e8/go.mod h1:dvDLG8qkwmyD9a/MJJN3XJcT3xFxOKAvTZGvuZmac9g=
