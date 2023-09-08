@@ -9,7 +9,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dchest/uniuri v1.2.0
 	github.com/elliotchance/pie v1.39.0
-	github.com/elliotchance/pie/v2 v2.7.0
+	github.com/elliotchance/pie/v2 v2.7.1
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
 	github.com/joho/godotenv v1.5.1
