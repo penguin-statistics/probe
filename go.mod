@@ -8,7 +8,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dchest/uniuri v1.2.0
-	github.com/elliotchance/pie v1.39.0
+	github.com/elliotchance/pie/v2 v2.8.0
 	github.com/elliotchance/pie/v2 v2.8.0
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/websocket v1.5.0
