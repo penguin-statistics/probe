@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.16.0
 	github.com/Masterminds/semver v1.5.0
-	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
+	github.com/asaskevich/govalidator/v11 v11.0.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dchest/uniuri v1.2.0
 	github.com/elliotchance/pie v1.39.0
