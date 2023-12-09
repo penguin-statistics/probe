@@ -18,7 +18,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/prometheus/client_golang v1.17.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/viper v1.18.0
+	github.com/spf13/viper v1.18.1
 	go.uber.org/ratelimit v0.3.0
 	google.golang.org/protobuf v1.31.0
 )
